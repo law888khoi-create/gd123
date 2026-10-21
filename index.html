@@ -372,9 +372,8 @@
                 </div>
             </div>
             <div class="flex-grow bg-slate-100 relative flex items-center justify-center overflow-hidden">
-                <!-- Khu vực hiển thị trực tiếp (iframe cho PDF/Web, video cho MP4, img cho ảnh) -->
                 <div id="viewer-content-container" class="w-full h-full flex items-center justify-center">
-                    <!-- Dynamic injected viewer -->
+                    <!-- Dynamic -->
                 </div>
             </div>
         </div>
@@ -444,7 +443,7 @@
                         <div>
                             <span class="bg-white/20 text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wider">Phiên làm việc bảo mật</span>
                             <h4 class="text-xl font-bold mt-2">Xin chào, Quản Trị Viên</h4>
-                            <p class="text-sm text-indigo-100">Bạn có quyền quản trị và bổ sung dữ liệu học tập miễn phí cho các khối lớp từ 6 đến 12.</p>
+                            <p class="text-sm text-indigo-100">Bạn có quyền quản trị và bổ sung dữ liệu học tập trực tuyến trên Cloud Firestore.</p>
                         </div>
                         <button onclick="handleTeacherLogout()" class="bg-white text-indigo-600 hover:bg-indigo-50 font-bold px-4 py-2 rounded-xl text-sm transition shadow">
                             <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Đăng xuất
@@ -457,7 +456,7 @@
                             <h4 class="text-xl font-bold text-slate-900 flex items-center gap-2">
                                 <i class="fa-solid fa-cloud-arrow-up text-indigo-600"></i> Đăng Tải Bài Giảng Hoặc Bài Tập Mới
                             </h4>
-                            <p class="text-sm text-slate-500 mt-0.5">Chọn file từ máy tính để cập nhật tài liệu lên web.</p>
+                            <p class="text-sm text-slate-500 mt-0.5">Chọn file từ máy tính để cập nhật tài liệu lên đám mây trực tuyến.</p>
                         </div>
 
                         <form id="upload-data-form" onsubmit="handleDataUpload(event)" class="space-y-6">
@@ -514,7 +513,7 @@
                                     Đóng cửa sổ
                                 </button>
                                 <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2 text-sm">
-                                    <i class="fa-solid fa-cloud-arrow-up"></i> Xác Nhận Đăng Tải Dữ Liệu
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Xác Nhận Đăng Tải Lên Mây
                                 </button>
                             </div>
                         </form>
@@ -524,7 +523,7 @@
                     <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                         <h4 class="text-lg font-bold text-slate-900 mb-4 flex items-center justify-between">
                             <span><i class="fa-solid fa-list-check text-indigo-600 mr-2"></i> Lịch Sử Đăng Tải Gần Đây</span>
-                            <span class="text-xs font-semibold text-slate-400 uppercase">Hệ thống thời gian thực</span>
+                            <span class="text-xs font-semibold text-indigo-400 uppercase">Đồng bộ Firebase Cloud</span>
                         </h4>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-sm">
@@ -569,7 +568,7 @@
                 <button onclick="closeQuickSearch()" class="text-slate-400 hover:text-slate-600 p-2"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div id="search-results" class="py-4 max-h-96 overflow-y-auto space-y-2">
-                <div class="text-center text-slate-400 py-8 text-sm">Nhập từ khóa để tìm kiếm bài giảng và tài liệu môn Toán miễn phí từ lớp 6 đến 12.</div>
+                <div class="text-center text-slate-400 py-8 text-sm">Nhập từ khóa để tìm kiếm bài giảng và tài liệu môn Toán từ lớp 6 đến 12.</div>
             </div>
         </div>
     </div>
@@ -622,9 +621,25 @@
         </div>
     </footer>
 
-    <!-- JAVASCRIPT APPLICATION LOGIC -->
-    <script>
-        const mathHubData = {
+    <!-- FIREBASE SDK SCRIPTS -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAZ6OXns0HiCpkJzRc3bEwEFb1aOXy7MBs",
+            authDomain: "khoideptrai-77c07.firebaseapp.com",
+            projectId: "khoideptrai-77c07",
+            storageBucket: "khoideptrai-77c07.firebasestorage.app",
+            messagingSenderId: "213193338682",
+            appId: "1:213193338682:web:9bff583b81835683bf2a03",
+            measurementId: "G-Z27FEVQ92D"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.mathHubData = {
             6: { name: "Toán Lớp 6", badge: "Chương trình mới - Miễn phí 100%", description: "Hệ thống kiến thức Số học và Hình học trực quan dành cho học sinh chuẩn bị bước vào cấp 2.", lessons: [], exercises: [] },
             7: { name: "Toán Lớp 7", badge: "Đại số hữu tỉ & Hình học phẳng - Miễn phí", description: "Khám phá thế giới số hữu tỉ, tỉ lệ thức và các định lý hình học tam giác quan trọng.", lessons: [], exercises: [] },
             8: { name: "Toán Lớp 8", badge: "Đa thức, Hằng đẳng thức & Định lý Thalès", description: "Nền tảng đại số nâng cao với hằng đẳng thức đáng nhớ và phương trình bậc nhất một ẩn.", lessons: [], exercises: [] },
@@ -634,12 +649,83 @@
             12: { name: "Toán Lớp 12", badge: "Luyện Thi THPT Quốc Gia & Đại Học", description: "Giai đoạn nước rút ôn thi đại học với Khảo sát hàm số, Hình học Oxyz, Xác suất và Tích phân hoàn toàn miễn phí.", lessons: [], exercises: [] }
         };
 
-        let currentGrade = 12;
-        let isTeacherLoggedIn = false;
-        let selectedUploadedFileName = "";
-        let selectedFileObject = null; // Lưu trữ file thực tế để hiển thị trực tiếp
-        let customTeacherUploads = [];
+        window.currentGrade = 12;
+        window.isTeacherLoggedIn = false;
+        window.selectedUploadedFileName = "";
+        window.selectedFileBase64 = "";
+        window.customTeacherUploads = [];
 
+        async function fetchDocuments() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "teacher_uploads"));
+                window.customTeacherUploads = [];
+                querySnapshot.forEach((docSnap) => {
+                    window.customTeacherUploads.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderTeacherUploadsTable();
+                if (window.currentGrade) selectGrade(window.currentGrade);
+            } catch (error) {
+                console.error("Lỗi tải dữ liệu từ Firestore: ", error);
+            }
+        }
+        fetchDocuments();
+
+        window.handleDataUpload = async function(event) {
+            event.preventDefault();
+            const grade = document.getElementById('upload-grade').value;
+            const type = document.getElementById('upload-type').value;
+            const title = document.getElementById('upload-title').value;
+            const desc = document.getElementById('upload-desc').value;
+
+            let filename = window.selectedUploadedFileName ? window.selectedUploadedFileName : "Tai_lieu_toan_hoc.pdf";
+            let fileUrl = window.selectedFileBase64 ? window.selectedFileBase64 : "";
+
+            const newEntry = {
+                grade: parseInt(grade),
+                type: type,
+                title: title,
+                filename: filename,
+                fileUrl: fileUrl,
+                desc: desc || "Tài liệu bổ trợ chuyên sâu môn Toán từ giáo viên.",
+                time: new Date().toLocaleDateString('vi-VN')
+            };
+
+            try {
+                const docRef = await addDoc(collection(db, "teacher_uploads"), newEntry);
+                newEntry.id = docRef.id;
+                window.customTeacherUploads.unshift(newEntry);
+
+                showToast('Đăng tải thành công!', `Đã đồng bộ lên mây Firebase cho Lớp ${grade}.`, 'success');
+                
+                document.getElementById('upload-title').value = '';
+                document.getElementById('upload-desc').value = '';
+                window.selectedUploadedFileName = "";
+                window.selectedFileBase64 = "";
+                document.getElementById('selected-file-name').innerText = "Hỗ trợ PDF, Hình ảnh, Video, Word (Tối đa 50MB)";
+
+                renderTeacherUploadsTable();
+                selectGrade(window.currentGrade);
+            } catch (error) {
+                console.error("Lỗi khi thêm tài liệu: ", error);
+                showToast('Lỗi đăng tải', 'Không thể kết nối cơ sở dữ liệu Firebase.', 'info');
+            }
+        }
+
+        window.deleteCustomUpload = async function(id) {
+            try {
+                await deleteDoc(doc(db, "teacher_uploads", id));
+                window.customTeacherUploads = window.customTeacherUploads.filter(u => u.id !== id);
+                renderTeacherUploadsTable();
+                selectGrade(window.currentGrade);
+                showToast('Đã xóa', 'Tài liệu đã được gỡ khỏi hệ thống đám mây.', 'info');
+            } catch (error) {
+                console.error("Lỗi khi xóa: ", error);
+            }
+        }
+    </script>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
         function navigateToHome() {
             document.getElementById('view-home').classList.remove('hidden');
             document.getElementById('view-subject-hub').classList.add('hidden');
@@ -659,60 +745,10 @@
             document.getElementById('hub-exercise-count').innerText = data.exercises.length + customTeacherUploads.filter(u => u.grade == gradeNumber).length;
 
             const lessonsContainer = document.getElementById('lessons-grid');
-            if (data.lessons.length === 0) {
-                lessonsContainer.innerHTML = `<div class="col-span-3 text-center py-12 text-slate-400 text-sm bg-white rounded-3xl border border-slate-100">Chưa có bài giảng nào được đăng tải. Giáo viên có thể đăng nhập vào cổng quản trị để thêm mới.</div>`;
-            } else {
-                lessonsContainer.innerHTML = '';
-                data.lessons.forEach((les, idx) => {
-                    lessonsContainer.innerHTML += `
-                        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:border-indigo-300 transition flex flex-col justify-between">
-                            <div>
-                                <div class="flex items-center justify-between mb-3">
-                                    <span class="bg-indigo-50 text-indigo-600 text-xs font-semibold px-2.5 py-1 rounded-md">Bài ${idx + 1}</span>
-                                    <span class="text-xs font-medium text-slate-400"><i class="fa-regular fa-clock mr-1"></i> ${les.duration}</span>
-                                </div>
-                                <h4 class="text-lg font-bold text-slate-900">${les.title}</h4>
-                                <p class="text-slate-500 text-sm mt-2">${les.desc}</p>
-                            </div>
-                            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                                <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded">${les.level}</span>
-                                <button onclick="viewDocument('${les.title}', '${les.filename}', '${les.fileUrl || ''}')" class="text-indigo-600 font-semibold text-sm hover:underline flex items-center gap-1">
-                                    Xem trực tiếp <i class="fa-solid fa-eye text-xs"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
+            lessonsContainer.innerHTML = `<div class="col-span-3 text-center py-12 text-slate-400 text-sm bg-white rounded-3xl border border-slate-100">Chưa có bài giảng mặc định. Vui lòng xem ở mục "Tài liệu GV đăng tải".</div>`;
 
             const exercisesContainer = document.getElementById('exercises-list');
-            if (data.exercises.length === 0) {
-                exercisesContainer.innerHTML = `<div class="text-center py-12 text-slate-400 text-sm">Chưa có bài tập hoặc đề thi nào được đăng tải.</div>`;
-            } else {
-                exercisesContainer.innerHTML = '';
-                data.exercises.forEach(ex => {
-                    exercisesContainer.innerHTML += `
-                        <div class="py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <div class="flex items-start space-x-3">
-                                <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
-                                    <i class="fa-solid fa-file-lines"></i>
-                                </div>
-                                <div>
-                                    <h5 class="font-bold text-slate-900 text-base">${ex.title}</h5>
-                                    <div class="flex items-center gap-3 text-xs text-slate-500 mt-1">
-                                        <span class="bg-slate-100 px-2 py-0.5 rounded font-medium text-slate-600">${ex.type}</span>
-                                        <span><i class="fa-solid fa-clipboard-question mr-1"></i> ${ex.questions}</span>
-                                        <span><i class="fa-solid fa-user-pen mr-1"></i> ${ex.author}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <button onclick="viewDocument('${ex.title}', '${ex.filename}', '${ex.fileUrl || ''}')" class="bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 font-semibold px-4 py-2 rounded-xl text-sm transition flex items-center gap-2 flex-shrink-0">
-                                <i class="fa-solid fa-eye"></i> Xem tài liệu
-                            </button>
-                        </div>
-                    `;
-                });
-            }
+            exercisesContainer.innerHTML = `<div class="text-center py-12 text-slate-400 text-sm">Chưa có đề thi mặc định.</div>`;
 
             renderCustomUploadsForGrade(gradeNumber);
 
@@ -727,7 +763,7 @@
             document.getElementById('custom-badge-count').innerText = filtered.length;
 
             if (filtered.length === 0) {
-                listEl.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">Chưa có tài liệu nào được giáo viên đăng tải riêng cho khối lớp này. Thầy cô có thể đăng tải ở Cổng giáo viên.</div>`;
+                listEl.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">Chưa có tài liệu nào được giáo viên đăng tải cho lớp này.</div>`;
                 return;
             }
 
@@ -761,7 +797,6 @@
             });
         }
 
-        // HÀM MỞ TRÌNH XEM TRỰC TIẾP TÀI LIỆU TRÊN WEB
         function viewDocument(title, filename, fileUrl) {
             document.getElementById('viewer-file-title').innerText = title;
             document.getElementById('viewer-file-name').innerText = filename || "Tài liệu học tập";
@@ -769,17 +804,14 @@
             container.innerHTML = '';
 
             if (fileUrl && fileUrl !== 'undefined' && fileUrl !== '') {
-                // Kiểm tra nếu là file ảnh hoặc video hoặc PDF
                 if (filename.match(/\.(jpeg|jpg|gif|png)$/i)) {
                     container.innerHTML = `<img src="${fileUrl}" class="max-w-full max-h-full object-contain rounded-xl shadow-lg" alt="Document image">`;
                 } else if (filename.match(/\.(mp4|webm|ogg)$/i)) {
                     container.innerHTML = `<video src="${fileUrl}" controls autoplay class="max-w-full max-h-full rounded-xl shadow-lg"></video>`;
                 } else {
-                    // Mặc định cho PDF hoặc các file khác dùng iframe
                     container.innerHTML = `<iframe src="${fileUrl}" class="w-full h-full border-0"></iframe>`;
                 }
             } else {
-                // Nếu chưa có file thật được tải lên (hoặc file mẫu demo), hiển thị nội dung giả lập đẹp mắt trực tiếp trên web
                 container.innerHTML = `
                     <div class="text-center p-8 max-w-lg bg-white rounded-3xl shadow-xl border border-slate-200 m-auto">
                         <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
@@ -787,11 +819,6 @@
                         </div>
                         <h3 class="text-xl font-bold text-slate-900 mb-2">${title}</h3>
                         <p class="text-sm text-slate-500 mb-6">Tài liệu trực tuyến hiển thị trực tiếp trên hệ thống Toán Online Free.</p>
-                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-left text-xs text-slate-600 space-y-2 mb-6">
-                            <p class="font-bold text-slate-700"><i class="fa-solid fa-circle-info text-indigo-600 mr-1"></i> Nội dung xem trước:</p>
-                            <p>• Phần 1: Tóm tắt lý thuyết trọng tâm và các hằng đẳng thức/công thức cần nhớ.</p>
-                            <p>• Phần 2: Các dạng bài tập tự luận và trắc nghiệm chọn lọc có hướng dẫn giải chi tiết.</p>
-                        </div>
                         <button onclick="closeDocumentViewer()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition">
                             Đã hiểu & Quay lại học
                         </button>
@@ -877,60 +904,20 @@
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (file) {
-                selectedFileObject = file;
                 selectedUploadedFileName = file.name;
-                document.getElementById('selected-file-name').innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-file-circle-check mr-1"></i> Đã chọn file: ${file.name}</span>`;
-            }
-        }
-
-        function handleDataUpload(event) {
-            event.preventDefault();
-            const grade = document.getElementById('upload-grade').value;
-            const type = document.getElementById('upload-type').value;
-            const title = document.getElementById('upload-title').value;
-            const desc = document.getElementById('upload-desc').value;
-
-            let filename = selectedUploadedFileName ? selectedUploadedFileName : "Tai_lieu_toan_hoc.pdf";
-            let fileUrl = selectedFileObject ? URL.createObjectURL(selectedFileObject) : "";
-
-            const newEntry = {
-                id: Date.now(),
-                grade: parseInt(grade),
-                type: type,
-                title: title,
-                filename: filename,
-                fileUrl: fileUrl,
-                desc: desc || "Tài liệu bổ trợ chuyên sâu môn Toán từ giáo viên.",
-                time: 'Vừa xong'
-            };
-
-            customTeacherUploads.unshift(newEntry);
-            
-            if (type === 'lesson') {
-                mathHubData[grade].lessons.push({ title: title, desc: desc || "Bài giảng trực tuyến", duration: "1 Bài giảng", level: "Miễn phí", filename: filename, fileUrl: fileUrl });
-            } else {
-                mathHubData[grade].exercises.push({ title: title, type: type === 'exercise' ? 'Bài tập tự luyện' : 'Đề kiểm tra', questions: 'Tài liệu chi tiết', author: 'Giáo viên', filename: filename, fileUrl: fileUrl });
-            }
-
-            showToast('Đăng tải thành công!', `Đã thêm file lên hệ thống Toán Lớp ${grade}.`, 'success');
-            
-            document.getElementById('upload-title').value = '';
-            document.getElementById('upload-desc').value = '';
-            selectedUploadedFileName = "";
-            selectedFileObject = null;
-            document.getElementById('selected-file-name').innerText = "Hỗ trợ PDF, Hình ảnh, Video, Word (Tối đa 50MB)";
-
-            renderTeacherUploadsTable();
-            
-            if(currentGrade == grade) {
-                selectGrade(grade);
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedFileBase64 = e.target.result;
+                    document.getElementById('selected-file-name').innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-file-circle-check mr-1"></i> Đã chọn file: ${file.name}</span>`;
+                };
+                reader.readAsDataURL(file);
             }
         }
 
         function renderTeacherUploadsTable() {
             const tbody = document.getElementById('teacher-uploads-table-body');
             if(customTeacherUploads.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">Chưa có dữ liệu nào được đăng tải.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">Chưa có dữ liệu nào trên mây Firebase.</td></tr>`;
                 return;
             }
 
@@ -946,22 +933,13 @@
                             <button onclick="viewDocument('${item.title}', '${item.filename}', '${item.fileUrl}')" class="text-indigo-600 hover:text-indigo-800 p-1.5 rounded-lg hover:bg-indigo-50 transition" title="Xem trực tiếp">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
-                            <button onclick="deleteCustomUpload(${item.id})" class="text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 transition" title="Xóa tài liệu">
+                            <button onclick="deleteCustomUpload('${item.id}')" class="text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 transition" title="Xóa tài liệu">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </td>
                     </tr>
                 `;
             });
-        }
-
-        function deleteCustomUpload(id) {
-            customTeacherUploads = customTeacherUploads.filter(u => u.id !== id);
-            renderTeacherUploadsTable();
-            showToast('Đã xóa', 'Tài liệu đã được gỡ khỏi hệ thống.', 'info');
-            if(currentGrade) {
-                selectGrade(currentGrade);
-            }
         }
 
         function showQuickSearch() {
@@ -983,14 +961,6 @@
             }
 
             let found = [];
-            for(let g in mathHubData) {
-                mathHubData[g].lessons.forEach(l => {
-                    if(l.title.toLowerCase().includes(query) || l.desc.toLowerCase().includes(query)) {
-                        found.push({ grade: g, type: 'Bài giảng', title: l.title, desc: l.desc });
-                    }
-                });
-            }
-
             customTeacherUploads.forEach(u => {
                 if(u.title.toLowerCase().includes(query) || u.desc.toLowerCase().includes(query)) {
                     found.push({ grade: u.grade, type: 'Tài liệu GV', title: u.title, desc: u.desc });
@@ -1011,7 +981,7 @@
                             <h5 class="font-bold text-slate-900 text-sm mt-1">${item.title}</h5>
                             <p class="text-xs text-slate-500 truncate max-w-md">${item.desc}</p>
                         </div>
-                        <i class="fa-solid fa-chevron-right text-slate-300 text-sm"></div>
+                        <i class="fa-solid fa-chevron-right text-slate-300 text-sm"></i>
                     </div>
                 `;
             });
