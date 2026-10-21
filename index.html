@@ -301,12 +301,12 @@
                 </div>
                 <div class="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl flex items-center gap-4 text-center">
                     <div>
-                        <div class="text-2xl font-black text-amber-300" id="hub-lesson-count">3</div>
-                        <div class="text-xs text-indigo-200 mt-0.5">Chương học</div>
+                        <div class="text-2xl font-black text-amber-300" id="hub-lesson-count">0</div>
+                        <div class="text-xs text-indigo-200 mt-0.5">Bài giảng</div>
                     </div>
                     <div class="w-px h-10 bg-white/20"></div>
                     <div>
-                        <div class="text-2xl font-black text-emerald-300" id="hub-exercise-count">5</div>
+                        <div class="text-2xl font-black text-emerald-300" id="hub-exercise-count">0</div>
                         <div class="text-xs text-indigo-200 mt-0.5">Tài liệu & Đề</div>
                     </div>
                 </div>
@@ -402,28 +402,24 @@
                     
                     <form id="login-form" onsubmit="handleTeacherLogin(event)" class="space-y-4">
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1">Email hoặc Mã Giáo Viên</label>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Tài Khoản</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                    <i class="fa-solid fa-envelope"></i>
+                                    <i class="fa-solid fa-user"></i>
                                 </span>
-                                <input type="text" id="teacher-username" required placeholder="gv.nguyenvanan@toanfree.vn" value="thaytoan@toanfree.vn" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 bg-white font-medium text-sm">
+                                <input type="text" id="teacher-username" required placeholder="Nhập tài khoản..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 bg-white font-medium text-sm">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1">Mật Khẩu Quản Trị</label>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Mật Khẩu</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                     <i class="fa-solid fa-lock"></i>
                                 </span>
-                                <input type="password" id="teacher-password" required placeholder="••••••••" value="123456" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 bg-white font-medium text-sm">
+                                <input type="password" id="teacher-password" required placeholder="Nhập mật khẩu..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 bg-white font-medium text-sm">
                             </div>
                         </div>
-                        <div class="text-xs text-slate-400 bg-indigo-50/50 p-3 rounded-xl border border-indigo-100 flex items-center gap-2">
-                            <i class="fa-solid fa-circle-info text-indigo-600 text-sm"></i>
-                            <span>Tài khoản demo sẵn sàng: Nhấn nút bên dưới để đăng nhập nhanh.</span>
-                        </div>
-                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-600/30 transition">
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-600/30 transition mt-2">
                             <i class="fa-solid fa-right-to-bracket mr-2"></i> Đăng Nhập Hệ Thống
                         </button>
                     </form>
@@ -434,7 +430,7 @@
                     <div class="bg-gradient-to-r from-indigo-500 to-violet-600 text-white p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-md">
                         <div>
                             <span class="bg-white/20 text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wider">Phiên làm việc bảo mật</span>
-                            <h4 class="text-xl font-bold mt-2">Xin chào, Thầy Nguyễn Văn Toán</h4>
+                            <h4 class="text-xl font-bold mt-2">Xin chào, Quản Trị Viên</h4>
                             <p class="text-sm text-indigo-100">Bạn có quyền quản trị và bổ sung dữ liệu học tập miễn phí cho các khối lớp từ 6 đến 12.</p>
                         </div>
                         <button onclick="handleTeacherLogout()" class="bg-white text-indigo-600 hover:bg-indigo-50 font-bold px-4 py-2 rounded-xl text-sm transition shadow">
@@ -448,7 +444,7 @@
                             <h4 class="text-xl font-bold text-slate-900 flex items-center gap-2">
                                 <i class="fa-solid fa-cloud-arrow-up text-indigo-600"></i> Đăng Tải Bài Giảng Hoặc Bài Tập Mới
                             </h4>
-                            <p class="text-sm text-slate-500 mt-0.5">Điền đầy đủ thông tin bên dưới để hệ thống cập nhật vào kho tài liệu của lớp tương ứng.</p>
+                            <p class="text-sm text-slate-500 mt-0.5">Điền thông tin và chọn file từ máy tính để cập nhật tài liệu.</p>
                         </div>
 
                         <form id="upload-data-form" onsubmit="handleDataUpload(event)" class="space-y-6">
@@ -480,15 +476,24 @@
                                 <input type="text" id="upload-title" required placeholder="VD: Khảo sát hàm số bậc 3 và các dạng bài toán chứa tham số m" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 bg-white font-medium text-sm">
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Tên Tệp Đính Kèm (PDF / DOCX / Video)</label>
-                                    <input type="text" id="upload-filename" placeholder="Tai_lieu_toan_12_chuyen_de.pdf" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 bg-white font-medium text-sm">
+                            <!-- DRAG & DROP / FILE UPLOAD SECTION -->
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">Tải Tệp Lên Từ Máy Tính (PDF, DOCX, ZIP, MP4)</label>
+                                <div class="border-2 border-dashed border-slate-300 rounded-2xl p-6 text-center hover:border-indigo-500 transition bg-slate-50 relative cursor-pointer" onclick="document.getElementById('file-upload-input').click()">
+                                    <input type="file" id="file-upload-input" class="hidden" onchange="handleFileSelect(event)">
+                                    <div id="file-drop-area" class="space-y-2">
+                                        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-xl">
+                                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                                        </div>
+                                        <p class="text-sm font-semibold text-slate-700">Kéo thả file vào đây hoặc <span class="text-indigo-600 underline">chọn từ máy tính</span></p>
+                                        <p class="text-xs text-slate-400" id="selected-file-name">Hỗ trợ định dạng PDF, Word, Excel, Video (Tối đa 50MB)</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Ghi Chú Hoặc Mô Tả Ngắn</label>
-                                    <input type="text" id="upload-desc" placeholder="Bao gồm câu hỏi chọn lọc có đáp án chi tiết." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 bg-white font-medium text-sm">
-                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">Ghi Chú Hoặc Mô Tả Ngắn</label>
+                                <input type="text" id="upload-desc" placeholder="Bao gồm câu hỏi chọn lọc có đáp án chi tiết." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 bg-white font-medium text-sm">
                             </div>
 
                             <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
@@ -515,7 +520,7 @@
                                         <th class="py-3 px-4">Khối</th>
                                         <th class="py-3 px-4">Loại</th>
                                         <th class="py-3 px-4">Tiêu đề tài liệu</th>
-                                        <th class="py-3 px-4">Thời gian</th>
+                                        <th class="py-3 px-4">Tên file</th>
                                         <th class="py-3 px-4 text-right">Thao tác</th>
                                     </tr>
                                 </thead>
@@ -611,109 +616,57 @@
                 name: "Toán Lớp 6",
                 badge: "Chương trình mới - Miễn phí 100%",
                 description: "Hệ thống kiến thức Số học và Hình học trực quan dành cho học sinh chuẩn bị bước vào cấp 2.",
-                lessons: [
-                    { title: "Chương 1: Số Tự Nhiên", desc: "Tập hợp số tự nhiên, các phép tính nhân chia lũy thừa, tính chia hết.", duration: "12 Bài giảng", level: "Miễn phí" },
-                    { title: "Chương 2: Số Nguyên", desc: "Số nguyên âm, tập hợp số nguyên và quy tắc dấu ngoặc.", duration: "10 Bài giảng", level: "Miễn phí" },
-                    { title: "Chương 3: Hình Học Trực Quan", desc: "Tam giác đều, hình vuông, lục giác đều và tính đối xứng trong thực tiễn.", duration: "8 Bài giảng", level: "Miễn phí" }
-                ],
-                exercises: [
-                    { title: "Bộ đề ôn tập giữa học kỳ I môn Toán 6", type: "Đề kiểm tra", questions: "30 Trắc nghiệm + 4 Tự luận", author: "Hệ thống" },
-                    { title: "Phiếu bài tập chuyên đề Tính chia hết trong N", type: "Bài tập tự luyện", questions: "25 Câu hỏi có lời giải", author: "Hệ thống" },
-                    { title: "Đề thi thử học kỳ II Toán 6 chuẩn cấu trúc mới", type: "Đề thi thử", questions: "Full đáp án chi tiết", author: "Hệ thống" }
-                ]
+                lessons: [],
+                exercises: []
             },
             7: {
                 name: "Toán Lớp 7",
                 badge: "Đại số hữu tỉ & Hình học phẳng - Miễn phí",
                 description: "Khám phá thế giới số hữu tỉ, tỉ lệ thức và các định lý hình học tam giác quan trọng.",
-                lessons: [
-                    { title: "Chương 1: Số Hữu Tỉ", desc: "Các phép tính với số hữu tỉ, lũy thừa của số hữu tỉ và tỉ lệ thức.", duration: "14 Bài giảng", level: "Miễn phí" },
-                    { title: "Chương 2: Số Thực", desc: "Căn bậc hai số học, số vô tỉ và tập hợp các số thực R.", duration: "9 Bài giảng", level: "Miễn phí" },
-                    { title: "Chương 3: Góc và Đường Thẳng Song Song", desc: "Tiên đề Euclid, các góc tạo bởi một đường thẳng cắt hai đường thẳng.", duration: "11 Bài giảng", level: "Miễn phí" }
-                ],
-                exercises: [
-                    { title: "Bài tập chuyên đề Tỉ lệ thức và Đại lượng tỉ lệ", type: "Bài tập tự luyện", questions: "30 Câu hỏi", author: "Hệ thống" },
-                    { title: "Đề kiểm tra 1 tiết chương Tam giác bằng nhau", type: "Đề kiểm tra", questions: "4 Đề kèm đáp án", author: "Hệ thống" }
-                ]
+                lessons: [],
+                exercises: []
             },
             8: {
                 name: "Toán Lớp 8",
                 badge: "Đa thức, Hằng đẳng thức & Định lý Thalès",
                 description: "Nền tảng đại số nâng cao với hằng đẳng thức đáng nhớ và phương trình bậc nhất một ẩn.",
-                lessons: [
-                    { title: "Chương 1: Phép Nhân và Chia Các Đa Thức", desc: "Hằng đẳng thức đáng nhớ, phân tích đa thức thành nhân tử.", duration: "15 Bài giảng", level: "Miễn phí" },
-                    { title: "Chương 2: Phân Thức Đại Sức", desc: "Tính chất cơ bản của phân thức, các phép toán cộng trừ nhân chia phân thức.", duration: "12 Bài giảng", level: "Miễn phí" },
-                    { title: "Chương 3: Định Lý Thalès trong Tam Giác", desc: "Định lý Thalès đảo, tính chất đường phân giác của tam giác.", duration: "10 Bài giảng", level: "Miễn phí" }
-                ],
-                exercises: [
-                    { title: "Tổng hợp 7 Hằng đẳng thức đáng nhớ và ứng dụng", type: "Bài tập tự luyện", questions: "45 Bài toán nâng cao", author: "Hệ thống" },
-                    { title: "Đề thi học kỳ I Toán 8 có lời giải chi tiết", type: "Đề thi thử", questions: "Đề chuẩn Sở GD&ĐT", author: "Hệ thống" }
-                ]
+                lessons: [],
+                exercises: []
             },
             9: {
                 name: "Toán Lớp 9",
                 badge: "Luyện Thi Vào Lớp 10 Miễn Phí",
                 description: "Hệ thống ôn thi cấp tốc vào lớp 10 với phương trình, hệ phương trình và hình học đường tròn.",
-                lessons: [
-                    { title: "Chương 1: Căn Bậc Hai & Căn Bậc Ba", desc: "Biến đổi biểu thức chứa căn, rút gọn biểu thức và các dạng toán liên quan.", duration: "16 Bài giảng", level: "Miễn phí" },
-                    { title: "Chương 2: Hàm Số Bậc Nhất và Bậc Hai", desc: "Đồ thị hàm số, phương trình bậc hai một ẩn và định lý Viète.", duration: "14 Bài giảng", level: "Miễn phí" },
-                    { title: "Chương 3: Đường Tròn & Góc Với Đường Tròn", desc: "Tính chất tiếp tuyến, tứ giác nội tiếp và các bài toán hình học phẳng.", duration: "18 Bài giảng", level: "Miễn phí" }
-                ],
-                exercises: [
-                    { title: "Tuyển tập 50 Đề thi vào lớp 10 môn Toán các tỉnh", type: "Đề thi thử", questions: "Kèm thang điểm chi tiết", author: "Hội đồng chuyên môn" },
-                    { title: "Chuyên đề Định lý Viète và Ứng dụng nâng cao", type: "Bài tập tự luyện", questions: "60 Bài toán chọn lọc", author: "Hệ thống" }
-                ]
+                lessons: [],
+                exercises: []
             },
             10: {
                 name: "Toán Lớp 10",
                 badge: "Chương trình THPT Chuẩn Mới",
                 description: "Làm quen với tư duy toán học cấp 3: Mệnh đề, Tập hợp, Hệ thức lượng trong tam giác và Vector.",
-                lessons: [
-                    { title: "Chương 1: Mệnh Đề và Tập Hợp", desc: "Logic toán học, các phép toán tập hợp giao, hợp, phần bù.", duration: "10 Bài giảng", level: "Miễn phí" },
-                    { title: "Chương 2: Bất Phương Trình Bậc Nhất Hai Ẩn", desc: "Miền nghiệm của bất phương trình và bài toán quy hoạch tuyến tính.", duration: "12 Bài giảng", level: "Miễn phí" },
-                    { title: "Chương 3: Vector và Hệ Thức Lượng", desc: "Tích vô hướng của hai vector, định lý côsin và sin trong tam giác.", duration: "15 Bài giảng", level: "Miễn phí" }
-                ],
-                exercises: [
-                    { title: "Bộ bài tập trắc nghiệm Vector lớp 10 có đáp án", type: "Bài tập tự luyện", questions: "50 Câu hỏi", author: "Hệ thống" },
-                    { title: "Đề kiểm tra giữa kỳ 1 Toán 10 chuẩn minh họa", type: "Đề kiểm tra", questions: "Trắc nghiệm + Tự luận", author: "Hệ thống" }
-                ]
+                lessons: [],
+                exercises: []
             },
             11: {
                 name: "Toán Lớp 11",
                 badge: "Đại số nâng cao & Hình học không gian",
                 description: "Chinh phục lượng giác, dãy số, giới hạn và quan hệ vuông góc trong không gian ba chiều.",
-                lessons: [
-                    { title: "Chương 1: Hàm Số Lượng Giác & Phương Trình", desc: "Công thức lượng giác, phương trình lượng giác cơ bản.", duration: "14 Bài giảng", level: "Miễn phí" },
-                    { title: "Chương 2: Dãy Số, Cấp Số Cộng & Cấp Số Nhân", desc: "Phương pháp quy nạp toán học, giới hạn dãy số và hàm số.", duration: "12 Bài giảng", level: "Miễn phí" },
-                    { title: "Chương 3: Quan Hệ Vuông Góc Trong Không Gian", desc: "Đường thẳng vuông góc mặt phẳng, hai mặt phẳng vuông góc.", duration: "16 Bài giảng", level: "Miễn phí" }
-                ],
-                exercises: [
-                    { title: "Chuyên đề Tính khoảng cách trong không gian 11", type: "Bài tập tự luyện", questions: "40 Bài toán từ cơ bản đến nâng cao", author: "Hệ thống" },
-                    { title: "Đề thi thử học kỳ II Toán 11 toàn quốc", type: "Đề thi thử", questions: "Chuẩn cấu trúc", author: "Hệ thống" }
-                ]
+                lessons: [],
+                exercises: []
             },
             12: {
                 name: "Toán Lớp 12",
                 badge: "Luyện Thi THPT Quốc Gia & Đại Học",
                 description: "Giai đoạn nước rút ôn thi đại học với Khảo sát hàm số, Hình học Oxyz, Xác suất và Tích phân hoàn toàn miễn phí.",
-                lessons: [
-                    { title: "Chương 1: Ứng Dụng Đạo Hàm Khảo Sát Hàm Số", desc: "Tính đơn điệu, cực trị, giá trị lớn nhất nhỏ nhất và tiệm cận.", duration: "20 Bài giảng", level: "Miễn phí" },
-                    { title: "Chương 2: Tọa Độ Không Gian Oxyz", desc: "Vector trong không gian, phương trình mặt phẳng, đường thẳng và mặt cầu.", duration: "18 Bài giảng", level: "Miễn phí" },
-                    { title: "Chương 3: Nguyên Hàm, Tích Phân & Ứng Dụng", desc: "Các phương pháp tính tích phân và ứng dụng tính diện tích hình phẳng.", duration: "15 Bài giảng", level: "Miễn phí" }
-                ],
-                exercises: [
-                    { title: "Bộ Đề Minh Họa Luyện Thi THPT Quốc Gia Môn Toán", type: "Đề thi thử", questions: "50 Câu trắc nghiệm chuẩn", author: "Hội đồng chuyên môn" },
-                    { title: "Chuyên đề Vận dụng cao (VDC) Hàm số & Oxyz", type: "Bài tập tự luyện", questions: "100 Câu điểm cao", author: "Hệ thống" }
-                ]
+                lessons: [],
+                exercises: []
             }
         };
 
         let currentGrade = 12;
         let isTeacherLoggedIn = false;
-        let customTeacherUploads = [
-            { id: 1, grade: 12, type: 'lesson', title: 'Bí lược giải nhanh trắc nghiệm Oxyz', filename: 'Oxyz_speed_hack.pdf', desc: 'Tuyệt kỹ casio và tư duy hình học không gian tọa độ.', time: 'Hôm nay' },
-            { id: 2, grade: 10, type: 'exercise', title: 'Phiếu bài tập Vector nâng cao luyện thi', filename: 'Vector_HSG_10.pdf', desc: 'Bài toán tư duy cao cấp kèm lời giải chi tiết.', time: 'Hôm qua' }
-        ];
+        let selectedUploadedFileName = "";
+        let customTeacherUploads = [];
 
         function navigateToHome() {
             document.getElementById('view-home').classList.remove('hidden');
@@ -734,52 +687,60 @@
             document.getElementById('hub-exercise-count').innerText = data.exercises.length + customTeacherUploads.filter(u => u.grade == gradeNumber).length;
 
             const lessonsContainer = document.getElementById('lessons-grid');
-            lessonsContainer.innerHTML = '';
-            data.lessons.forEach((les, idx) => {
-                lessonsContainer.innerHTML += `
-                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:border-indigo-300 transition flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="bg-indigo-50 text-indigo-600 text-xs font-semibold px-2.5 py-1 rounded-md">Bài ${idx + 1}</span>
-                                <span class="text-xs font-medium text-slate-400"><i class="fa-regular fa-clock mr-1"></i> ${les.duration}</span>
+            if (data.lessons.length === 0) {
+                lessonsContainer.innerHTML = `<div class="col-span-3 text-center py-12 text-slate-400 text-sm bg-white rounded-3xl border border-slate-100">Chưa có bài giảng nào được đăng tải. Giáo viên có thể đăng nhập vào cổng quản trị để thêm mới.</div>`;
+            } else {
+                lessonsContainer.innerHTML = '';
+                data.lessons.forEach((les, idx) => {
+                    lessonsContainer.innerHTML += `
+                        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:border-indigo-300 transition flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="bg-indigo-50 text-indigo-600 text-xs font-semibold px-2.5 py-1 rounded-md">Bài ${idx + 1}</span>
+                                    <span class="text-xs font-medium text-slate-400"><i class="fa-regular fa-clock mr-1"></i> ${les.duration}</span>
+                                </div>
+                                <h4 class="text-lg font-bold text-slate-900">${les.title}</h4>
+                                <p class="text-slate-500 text-sm mt-2">${les.desc}</p>
                             </div>
-                            <h4 class="text-lg font-bold text-slate-900">${les.title}</h4>
-                            <p class="text-slate-500 text-sm mt-2">${les.desc}</p>
+                            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                                <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded">${les.level}</span>
+                                <button onclick="showToast('Bắt đầu học', 'Đang tải bài giảng ' + '${les.title}', 'success')" class="text-indigo-600 font-semibold text-sm hover:underline flex items-center gap-1">
+                                    Vào học <i class="fa-solid fa-play text-xs"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                            <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded">${les.level}</span>
-                            <button onclick="showToast('Bắt đầu học', 'Đang tải bài giảng ' + '${les.title}', 'success')" class="text-indigo-600 font-semibold text-sm hover:underline flex items-center gap-1">
-                                Vào học <i class="fa-solid fa-play text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            }
 
             const exercisesContainer = document.getElementById('exercises-list');
-            exercisesContainer.innerHTML = '';
-            data.exercises.forEach(ex => {
-                exercisesContainer.innerHTML += `
-                    <div class="py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div class="flex items-start space-x-3">
-                            <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
-                                <i class="fa-solid fa-file-lines"></i>
-                            </div>
-                            <div>
-                                <h5 class="font-bold text-slate-900 text-base">${ex.title}</h5>
-                                <div class="flex items-center gap-3 text-xs text-slate-500 mt-1">
-                                    <span class="bg-slate-100 px-2 py-0.5 rounded font-medium text-slate-600">${ex.type}</span>
-                                    <span><i class="fa-solid fa-clipboard-question mr-1"></i> ${ex.questions}</span>
-                                    <span><i class="fa-solid fa-user-pen mr-1"></i> ${ex.author}</span>
+            if (data.exercises.length === 0) {
+                exercisesContainer.innerHTML = `<div class="text-center py-12 text-slate-400 text-sm">Chưa có bài tập hoặc đề thi nào được đăng tải.</div>`;
+            } else {
+                exercisesContainer.innerHTML = '';
+                data.exercises.forEach(ex => {
+                    exercisesContainer.innerHTML += `
+                        <div class="py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+                                    <i class="fa-solid fa-file-lines"></i>
+                                </div>
+                                <div>
+                                    <h5 class="font-bold text-slate-900 text-base">${ex.title}</h5>
+                                    <div class="flex items-center gap-3 text-xs text-slate-500 mt-1">
+                                        <span class="bg-slate-100 px-2 py-0.5 rounded font-medium text-slate-600">${ex.type}</span>
+                                        <span><i class="fa-solid fa-clipboard-question mr-1"></i> ${ex.questions}</span>
+                                        <span><i class="fa-solid fa-user-pen mr-1"></i> ${ex.author}</span>
+                                    </div>
                                 </div>
                             </div>
+                            <button onclick="showToast('Tải tài liệu', 'Đang tải xuống bộ đề ôn tập...', 'success')" class="bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 font-semibold px-4 py-2 rounded-xl text-sm transition flex items-center gap-2 flex-shrink-0">
+                                <i class="fa-solid fa-download"></i> Tải đề & Đáp án
+                            </button>
                         </div>
-                        <button onclick="showToast('Tải tài liệu', 'Đang tải xuống bộ đề ôn tập...', 'success')" class="bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 font-semibold px-4 py-2 rounded-xl text-sm transition flex items-center gap-2 flex-shrink-0">
-                            <i class="fa-solid fa-download"></i> Tải đề & Đáp án
-                        </button>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            }
 
             renderCustomUploadsForGrade(gradeNumber);
 
@@ -877,15 +838,30 @@
 
         function handleTeacherLogin(event) {
             event.preventDefault();
-            isTeacherLoggedIn = true;
-            showToast('Đăng nhập thành công', 'Chào mừng Thầy cô đã trở lại hệ thống quản trị!', 'success');
-            openTeacherModal();
+            const user = document.getElementById('teacher-username').value.trim();
+            const pass = document.getElementById('teacher-password').value.trim();
+
+            if (user === "admin@nhung" && pass === "307207") {
+                isTeacherLoggedIn = true;
+                showToast('Đăng nhập thành công', 'Chào mừng Quản Trị Viên đã trở lại!', 'success');
+                openTeacherModal();
+            } else {
+                showToast('Lỗi đăng nhập', 'Sai tài khoản hoặc mật khẩu! Vui lòng kiểm tra lại.', 'info');
+            }
         }
 
         function handleTeacherLogout() {
             isTeacherLoggedIn = false;
-            showToast('Đã đăng xuất', 'Phiên làm việc giáo viên đã được kết thúc an toàn.', 'info');
+            showToast('Đã đăng xuất', 'Phiên làm việc quản trị đã được kết thúc an toàn.', 'info');
             openTeacherModal();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedUploadedFileName = file.name;
+                document.getElementById('selected-file-name').innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-file-circle-check mr-1"></i> Đã chọn file: ${file.name}</span>`;
+            }
         }
 
         function handleDataUpload(event) {
@@ -893,10 +869,9 @@
             const grade = document.getElementById('upload-grade').value;
             const type = document.getElementById('upload-type').value;
             const title = document.getElementById('upload-title').value;
-            let filename = document.getElementById('upload-filename').value;
             const desc = document.getElementById('upload-desc').value;
 
-            if(!filename) filename = "Tai_lieu_mien_phi.pdf";
+            let filename = selectedUploadedFileName ? selectedUploadedFileName : "Tai_lieu_toan_hoc.pdf";
 
             const newEntry = {
                 id: Date.now(),
@@ -909,13 +884,27 @@
             };
 
             customTeacherUploads.unshift(newEntry);
-            showToast('Đăng tải thành công!', `Đã thêm tài liệu vào Toán Lớp ${grade}.`, 'success');
+            
+            // Nếu là bài giảng hoặc bài tập, có thể đẩy trực tiếp vào danh sách tương ứng nếu muốn
+            if (type === 'lesson') {
+                mathHubData[grade].lessons.push({ title: title, desc: desc || "Bài giảng trực tuyến", duration: "1 Bài giảng", level: "Miễn phí" });
+            } else {
+                mathHubData[grade].exercises.push({ title: title, type: type === 'exercise' ? 'Bài tập tự luyện' : 'Đề kiểm tra', questions: 'Tài liệu chi tiết', author: 'Giáo viên' });
+            }
+
+            showToast('Đăng tải thành công!', `Đã thêm file lên hệ thống Toán Lớp ${grade}.`, 'success');
             
             document.getElementById('upload-title').value = '';
-            document.getElementById('upload-filename').value = '';
             document.getElementById('upload-desc').value = '';
+            selectedUploadedFileName = "";
+            document.getElementById('selected-file-name').innerText = "Hỗ trợ định dạng PDF, Word, Excel, Video (Tối đa 50MB)";
 
             renderTeacherUploadsTable();
+            
+            // Cập nhật lại số liệu ở giao diện học tập nếu đang đứng ở khối lớp đó
+            if(currentGrade == grade) {
+                selectGrade(grade);
+            }
         }
 
         function renderTeacherUploadsTable() {
@@ -932,7 +921,7 @@
                         <td class="py-3 px-4 font-bold text-indigo-600">Lớp ${item.grade}</td>
                         <td class="py-3 px-4"><span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs font-semibold uppercase">${item.type}</span></td>
                         <td class="py-3 px-4 font-medium text-slate-800">${item.title}</td>
-                        <td class="py-3 px-4 text-slate-400 text-xs">${item.time}</td>
+                        <td class="py-3 px-4 text-slate-500 text-xs">${item.filename}</td>
                         <td class="py-3 px-4 text-right">
                             <button onclick="deleteCustomUpload(${item.id})" class="text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 transition" title="Xóa tài liệu">
                                 <i class="fa-solid fa-trash-can"></i>
@@ -947,6 +936,9 @@
             customTeacherUploads = customTeacherUploads.filter(u => u.id !== id);
             renderTeacherUploadsTable();
             showToast('Đã xóa', 'Tài liệu đã được gỡ khỏi hệ thống.', 'info');
+            if(currentGrade) {
+                selectGrade(currentGrade);
+            }
         }
 
         function showQuickSearch() {
