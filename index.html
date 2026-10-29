@@ -1,1017 +1,291 @@
 <!DOCTYPE html>
-<html lang="vi" class="h-full">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phần Mềm Học Online Toán Free - Từ Lớp 6 Đến Lớp 12</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Hệ thống Bán hàng - Quán Ăn</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for professional icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            800: '#3730a3',
-                            900: '#312e81',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        html {
-            scroll-behavior: smooth;
-        }
-        .fade-in {
-            animation: fadeIn 0.3s ease-in-out forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-full flex flex-col justify-between">
+<body class="bg-gray-50 text-gray-800 font-sans">
 
-    <!-- TOP NOTIFICATION BAR -->
-    <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-blue-900 text-white text-xs sm:text-sm py-2 px-4 text-center font-medium shadow-inner flex justify-center items-center gap-3">
-        <span><i class="fa-solid fa-gift text-amber-400 mr-1.5"></i> Phần mềm học Toán online hoàn toàn miễn phí cho học sinh THCS & THPT!</span>
-        <button onclick="openTeacherModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-2.5 py-0.5 rounded-full text-xs shadow transition">
-            <i class="fa-solid fa-chalkboard-user mr-1"></i> Giáo viên đăng nhập
-        </button>
-    </div>
+    <div class="container mx-auto p-4 max-w-7xl">
+        <header class="mb-6 text-center">
+            <h1 class="text-3xl font-bold text-orange-600">Ứng dụng Bán Hàng</h1>
+            <p class="text-gray-500">Cập nhật bảng giá mới nhất (Mang đi & Tại quán)</p>
+        </header>
 
-    <!-- MAIN NAVBAR -->
-    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <!-- Brand Logo -->
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateToHome()">
-                <div class="w-11 h-11 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-indigo-200">
-                    M<span class="text-amber-400">∑</span>
-                </div>
-                <div>
-                    <span class="text-xl font-extrabold bg-gradient-to-r from-indigo-700 to-violet-800 bg-clip-text text-transparent">Toán Online Free</span>
-                    <span class="block text-xs font-medium text-slate-400 tracking-wider">HỆ THỐNG HỌC TẬP MIỄN PHÍ</span>
-                </div>
-            </div>
-
-            <!-- Desktop Nav Links -->
-            <nav class="hidden md:flex items-center space-x-8 font-medium text-sm text-slate-600">
-                <a href="#" onclick="navigateToHome()" class="hover:text-indigo-600 transition text-indigo-600 font-semibold"><i class="fa-solid fa-house mr-1"></i> Trang Chủ</a>
-                <a href="#grades-section" class="hover:text-indigo-600 transition"><i class="fa-solid fa-layer-group mr-1"></i> Chọn Lớp (6-12)</a>
-            </nav>
-
-            <!-- Right Actions -->
-            <div class="flex items-center space-x-3">
-                <button onclick="openTeacherModal()" class="hidden sm:inline-flex items-center px-4 py-2 text-sm font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition border border-indigo-100">
-                    <i class="fa-solid fa-lock mr-2 text-indigo-500"></i> Cổng Giáo Viên
-                </button>
-                <button onclick="showQuickSearch()" class="p-2.5 text-slate-600 hover:text-indigo-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
-                    <i class="fa-solid fa-magnifying-glass text-lg"></i>
-                </button>
-                <!-- Mobile menu toggle -->
-                <button onclick="toggleMobileMenu()" class="md:hidden p-2.5 text-slate-600 hover:text-indigo-600 bg-slate-100 rounded-xl">
-                    <i class="fa-solid fa-bars text-lg"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Mobile Menu Dropdown -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-2 shadow-lg">
-            <a href="#" onclick="navigateToHome(); toggleMobileMenu();" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600">Trang chủ</a>
-            <a href="#grades-section" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600">Chọn Lớp (6-12)</a>
-            <button onclick="openTeacherModal(); toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-lg font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 mt-2">
-                <i class="fa-solid fa-lock mr-2"></i> Cổng Giáo Viên Đăng Nhập
-            </button>
-        </div>
-    </header>
-
-    <!-- MAIN DYNAMIC CONTENT CONTAINER -->
-    <main class="flex-grow">
-
-        <!-- VIEW 1: HOME & GRADE SELECTOR (Default) -->
-        <div id="view-home" class="fade-in">
-            <!-- Hero Section -->
-            <section class="relative overflow-hidden bg-gradient-to-b from-indigo-900 via-indigo-800 to-slate-900 text-white py-20 px-4 sm:px-6 lg:px-8">
-                <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#6366f1_1px,transparent_1px)] [background-size:16px_16px]"></div>
-                <div class="max-w-5xl mx-auto text-center relative z-10">
-                    <span class="inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full text-xs font-semibold bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 mb-6 backdrop-blur-md">
-                        <i class="fa-solid fa-check-circle text-emerald-400"></i> Phần mềm học Toán online 100% miễn phí
-                    </span>
-                    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
-                        Chinh Phục Môn <span class="bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300 bg-clip-text text-transparent">Toán Học</span> Từ Lớp 6 Đến Lớp 12
-                    </h1>
-                    <p class="text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto mb-10 font-normal">
-                        Truy cập kho bài giảng, đề thi và tài liệu môn Toán hoàn toàn miễn phí. Hỗ trợ học tập trực tuyến mượt mà cho mọi học sinh.
-                    </p>
-                    <div class="flex flex-wrap justify-center gap-4">
-                        <a href="#grades-section" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 py-4 rounded-2xl shadow-lg shadow-indigo-600/30 transition transform hover:-translate-y-0.5 flex items-center gap-3">
-                            <i class="fa-solid fa-compass text-amber-300"></i> Chọn Lớp Học Ngay
-                        </a>
-                        <button onclick="openTeacherModal()" class="bg-white/10 hover:bg-white/20 text-white font-semibold px-8 py-4 rounded-2xl backdrop-blur-md border border-white/20 transition flex items-center gap-2">
-                            <i class="fa-solid fa-user-tie"></i> Dành Cho Giáo Viên
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- GRADE SELECTOR SECTION -->
-            <section id="grades-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-                <div class="text-center max-w-3xl mx-auto mb-14">
-                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Hệ Thống Lớp Học Trực Tuyến</h2>
-                    <p class="text-slate-500 mt-3 text-lg">Vui lòng chọn khối lớp của bạn để truy cập chương trình Toán học tương ứng và đầy đủ tài liệu miễn phí.</p>
-                </div>
-
-                <!-- Grade Cards Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    
-                    <!-- Lớp 6 -->
-                    <div onclick="selectGrade(6)" class="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl border border-slate-100 hover:border-indigo-300 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full -mr-10 -mt-10 group-hover:bg-indigo-100 transition"></div>
-                        <div class="relative z-10">
-                            <div class="w-14 h-14 bg-indigo-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-lg shadow-indigo-200 mb-6 group-hover:scale-110 transition-transform">6</div>
-                            <span class="text-xs font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">THCS - Cấp 2</span>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-2">Toán Lớp 6</h3>
-                            <p class="text-slate-500 text-sm mt-2">Số tự nhiên, Số nguyên, Hình học trực quan, Thống kê xác suất.</p>
-                        </div>
-                        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-indigo-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
-                            <span>Vào học môn Toán</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </div>
-                    </div>
-
-                    <!-- Lớp 7 -->
-                    <div onclick="selectGrade(7)" class="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl border border-slate-100 hover:border-indigo-300 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-10 -mt-10 group-hover:bg-blue-100 transition"></div>
-                        <div class="relative z-10">
-                            <div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-lg shadow-blue-200 mb-6 group-hover:scale-110 transition-transform">7</div>
-                            <span class="text-xs font-semibold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">THCS - Cấp 2</span>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-2">Toán Lớp 7</h3>
-                            <p class="text-slate-500 text-sm mt-2">Số hữu tỉ, Số thực, Biểu thức đại số, Tam giác & Hình học phẳng.</p>
-                        </div>
-                        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-blue-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
-                            <span>Vào học môn Toán</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </div>
-                    </div>
-
-                    <!-- Lớp 8 -->
-                    <div onclick="selectGrade(8)" class="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl border border-slate-100 hover:border-indigo-300 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-violet-50 rounded-full -mr-10 -mt-10 group-hover:bg-violet-100 transition"></div>
-                        <div class="relative z-10">
-                            <div class="w-14 h-14 bg-violet-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-lg shadow-violet-200 mb-6 group-hover:scale-110 transition-transform">8</div>
-                            <span class="text-xs font-semibold uppercase tracking-wider text-violet-600 bg-violet-50 px-2.5 py-1 rounded-md">THCS - Cấp 2</span>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-2">Toán Lớp 8</h3>
-                            <p class="text-slate-500 text-sm mt-2">Đa thức, Phân thức đại số, Định lý Thalès, Hình chóp tam giác đều.</p>
-                        </div>
-                        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-violet-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
-                            <span>Vào học môn Toán</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </div>
-                    </div>
-
-                    <!-- Lớp 9 -->
-                    <div onclick="selectGrade(9)" class="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl border border-slate-100 hover:border-indigo-300 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-50 rounded-full -mr-10 -mt-10 group-hover:bg-purple-100 transition"></div>
-                        <div class="relative z-10">
-                            <div class="w-14 h-14 bg-purple-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-lg shadow-purple-200 mb-6 group-hover:scale-110 transition-transform">9</div>
-                            <span class="text-xs font-semibold uppercase tracking-wider text-purple-600 bg-purple-50 px-2.5 py-1 rounded-md">THCS - Cấp 2</span>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-2">Toán Lớp 9</h3>
-                            <p class="text-slate-500 text-sm mt-2">Phương trình & Hệ phương trình, Căn bậc hai, Đường tròn & Hình học.</p>
-                        </div>
-                        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-purple-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
-                            <span>Vào học môn Toán</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </div>
-                    </div>
-
-                    <!-- Lớp 10 -->
-                    <div onclick="selectGrade(10)" class="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl border border-slate-100 hover:border-emerald-300 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full -mr-10 -mt-10 group-hover:bg-emerald-100 transition"></div>
-                        <div class="relative z-10">
-                            <div class="w-14 h-14 bg-emerald-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-lg shadow-emerald-200 mb-6 group-hover:scale-110 transition-transform">10</div>
-                            <span class="text-xs font-semibold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">THPT - Cấp 3</span>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-2">Toán Lớp 10</h3>
-                            <p class="text-slate-500 text-sm mt-2">Mệnh đề & Tập hợp, Bất phương trình, Hệ thức lượng trong tam giác, Vector.</p>
-                        </div>
-                        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-emerald-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
-                            <span>Vào học môn Toán</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </div>
-                    </div>
-
-                    <!-- Lớp 11 -->
-                    <div onclick="selectGrade(11)" class="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl border border-slate-100 hover:border-emerald-300 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-teal-50 rounded-full -mr-10 -mt-10 group-hover:bg-teal-100 transition"></div>
-                        <div class="relative z-10">
-                            <div class="w-14 h-14 bg-teal-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-lg shadow-teal-200 mb-6 group-hover:scale-110 transition-transform">11</div>
-                            <span class="text-xs font-semibold uppercase tracking-wider text-teal-600 bg-teal-50 px-2.5 py-1 rounded-md">THPT - Cấp 3</span>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-2">Toán Lớp 11</h3>
-                            <p class="text-slate-500 text-sm mt-2">Hàm số lượng giác, Dãy số & Cấp số, Giới hạn, Quan hệ vuông góc trong không gian.</p>
-                        </div>
-                        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-teal-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
-                            <span>Vào học môn Toán</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </div>
-                    </div>
-
-                    <!-- Lớp 12 -->
-                    <div onclick="selectGrade(12)" class="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl border border-slate-100 hover:border-emerald-300 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-full -mr-10 -mt-10 group-hover:bg-amber-100 transition"></div>
-                        <div class="relative z-10">
-                            <div class="w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-500 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-lg shadow-amber-200 mb-6 group-hover:scale-110 transition-transform">12</div>
-                            <span class="text-xs font-semibold uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-1 rounded-md">Luyện Thi THPT Quốc Gia</span>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-2">Toán Lớp 12</h3>
-                            <p class="text-slate-500 text-sm mt-2">Khảo sát hàm số, Hình học Oxyz, Xác suất thống kê, Tích phân & Ứng dụng.</p>
-                        </div>
-                        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-amber-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
-                            <span>Vào học môn Toán</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </div>
-                    </div>
-
-                    <!-- Custom / Teacher Upload Card -->
-                    <div onclick="openTeacherModal()" class="group bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-3xl p-6 shadow-xl flex flex-col justify-between cursor-pointer relative overflow-hidden">
-                        <div class="absolute inset-0 bg-[radial-gradient(#6366f1_1px,transparent_1px)] [background-size:12px_12px] opacity-20"></div>
-                        <div class="relative z-10">
-                            <div class="w-14 h-14 bg-white/10 text-amber-400 rounded-2xl flex items-center justify-center text-2xl font-black mb-6 group-hover:rotate-12 transition-transform">
-                                <i class="fa-solid fa-chalkboard-user"></i>
-                            </div>
-                            <span class="text-xs font-semibold uppercase tracking-wider text-amber-400 bg-amber-400/20 px-2.5 py-1 rounded-md">Dành Cho Thầy Cô</span>
-                            <h3 class="text-2xl font-bold mt-2">Đăng Tải Dữ Liệu</h3>
-                            <p class="text-slate-300 text-sm mt-2">Thêm bài giảng, đề thi và quản lý nội dung các khối lớp trực tuyến.</p>
-                        </div>
-                        <div class="mt-6 pt-4 border-t border-indigo-700/60 flex items-center justify-between text-amber-400 font-semibold text-sm group-hover:translate-x-1 transition-transform relative z-10">
-                            <span>Truy cập Cổng GV</span>
-                            <i class="fa-solid fa-right-to-bracket"></i>
-                        </div>
-                    </div>
-
-                </div>
-            </section>
-        </div>
-
-        <!-- VIEW 2: MATHEMATICS SUBJECT HUB (Dynamic per grade) -->
-        <div id="view-subject-hub" class="hidden fade-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <!-- Breadcrumb Navigation -->
-            <div class="flex items-center space-x-2 text-sm text-slate-500 mb-6">
-                <button onclick="navigateToHome()" class="hover:text-indigo-600 flex items-center gap-1"><i class="fa-solid fa-house"></i> Trang chủ</button>
-                <span>/</span>
-                <span id="breadcrumb-grade-name" class="font-bold text-indigo-600">Toán Lớp ...</span>
-            </div>
-
-            <!-- Subject Hub Header Banner -->
-            <div id="hub-banner" class="bg-gradient-to-r from-indigo-700 via-indigo-600 to-violet-700 rounded-3xl p-8 sm:p-12 text-white shadow-xl mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div>
-                    <div class="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider text-amber-300 mb-3" id="hub-badge">
-                        Chương trình chuẩn SGK (Miễn phí 100%)
-                    </div>
-                    <h1 id="hub-title" class="text-3xl sm:text-5xl font-extrabold tracking-tight">Học Phần Môn Toán Lớp ...</h1>
-                    <p id="hub-desc" class="text-indigo-100 mt-2 max-w-2xl text-base sm:text-lg">Tuyển tập bài giảng lý thuyết, các dạng bài tập tự luyện có lời giải chi tiết và đề kiểm tra định kỳ hoàn toàn miễn phí.</p>
-                </div>
-                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl flex items-center gap-4 text-center">
-                    <div>
-                        <div class="text-2xl font-black text-amber-300" id="hub-lesson-count">0</div>
-                        <div class="text-xs text-indigo-200 mt-0.5">Bài giảng</div>
-                    </div>
-                    <div class="w-px h-10 bg-white/20"></div>
-                    <div>
-                        <div class="text-2xl font-black text-emerald-300" id="hub-exercise-count">0</div>
-                        <div class="text-xs text-indigo-200 mt-0.5">Tài liệu & Đề</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hub Tabs -->
-            <div class="flex border-b border-slate-200 mb-8 space-x-8 overflow-x-auto">
-                <button onclick="switchTab('lessons')" id="tab-lessons-btn" class="py-3 font-bold text-indigo-600 border-b-2 border-indigo-600 whitespace-nowrap text-base flex items-center gap-2">
-                    <i class="fa-solid fa-book-bookmark"></i> Bài Giảng & Lý Thuyết
-                </button>
-                <button onclick="switchTab('exercises')" id="tab-exercises-btn" class="py-3 font-semibold text-slate-500 hover:text-indigo-600 whitespace-nowrap text-base flex items-center gap-2">
-                    <i class="fa-solid fa-file-pen"></i> Bài Tập & Đề Thi
-                </button>
-                <button onclick="switchTab('custom')" id="tab-custom-btn" class="py-3 font-semibold text-slate-500 hover:text-indigo-600 whitespace-nowrap text-base flex items-center gap-2">
-                    <i class="fa-solid fa-cloud-arrow-up text-amber-500"></i> Tài Liệu GV Đăng Tải <span id="custom-badge-count" class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
-                </button>
-            </div>
-
-            <!-- Tab Content: Lessons -->
-            <div id="tab-lessons-content" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="lessons-grid">
-                    <!-- Dynamic -->
-                </div>
-            </div>
-
-            <!-- Tab Content: Exercises -->
-            <div id="tab-exercises-content" class="hidden space-y-6">
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                    <h3 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-list-check text-indigo-600"></i> Ngân hàng bài tập & Đề kiểm tra định kỳ
-                    </h3>
-                    <div class="divide-y divide-slate-100" id="exercises-list">
-                        <!-- Dynamic -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab Content: Custom Teacher Uploads -->
-            <div id="tab-custom-content" class="hidden space-y-6">
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                        <div>
-                            <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-                                <i class="fa-solid fa-chalkboard-user text-amber-500"></i> Tài Liệu Do Giáo Viên Đăng Tải Cho Lớp Này
-                            </h3>
-                            <p class="text-sm text-slate-500 mt-1">Các file bài giảng, phiếu bài tập bổ trợ được cập nhật trực tiếp bởi đội ngũ giáo viên.</p>
-                        </div>
-                        <button onclick="openTeacherModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-xl text-sm transition flex items-center gap-2">
-                            <i class="fa-solid fa-plus"></i> Đăng thêm tài liệu
-                        </button>
-                    </div>
-                    <div class="divide-y divide-slate-100" id="custom-uploads-list">
-                        <!-- Dynamic -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- DOCUMENT VIEWER MODAL (Xem trực tiếp tài liệu trên web) -->
-    <div id="document-viewer-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-2 sm:p-6">
-        <div class="bg-white w-full max-w-5xl h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
-            <div class="bg-slate-900 text-white p-4 sm:px-6 flex justify-between items-center">
-                <div class="flex items-center space-x-3 truncate">
-                    <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-base flex-shrink-0">
-                        <i class="fa-solid fa-file-lines"></i>
-                    </div>
-                    <div class="truncate">
-                        <h4 id="viewer-file-title" class="text-base font-bold truncate">Tên tài liệu</h4>
-                        <p class="text-xs text-slate-400 truncate" id="viewer-file-name">filename.pdf</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 flex-shrink-0">
-                    <button onclick="closeDocumentViewer()" class="text-slate-300 hover:text-white px-3 py-1.5 rounded-lg bg-white/10 text-sm font-semibold transition">
-                        <i class="fa-solid fa-xmark mr-1"></i> Đóng
-                    </button>
-                </div>
-            </div>
-            <div class="flex-grow bg-slate-100 relative flex items-center justify-center overflow-hidden">
-                <div id="viewer-content-container" class="w-full h-full flex items-center justify-center">
-                    <!-- Dynamic -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TEACHER LOGIN & DASHBOARD MODAL -->
-    <div id="teacher-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- Modal Header -->
-            <div class="bg-gradient-to-r from-indigo-900 to-slate-900 text-white p-6 flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-slate-900 font-bold text-lg">
-                        <i class="fa-solid fa-shield-halved"></i>
+            <!-- CỘT TRÁI: DANH MỤC MÓN ĂN (2/3 màn hình) -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Ô tìm kiếm và chọn hình thức -->
+                <div class="bg-white p-4 rounded-xl shadow-md space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold text-gray-700">Hình thức phục vụ chung:</span>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="orderType" value="mang_di" checked onchange="changeOrderType()" class="text-orange-600 focus:ring-orange-500">
+                                <span class="font-medium">Mang đi</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="orderType" value="an_tai_quan" onchange="changeOrderType()" class="text-orange-600 focus:ring-orange-500">
+                                <span class="font-medium">Ăn tại quán</span>
+                            </label>
+                        </div>
                     </div>
+                    <!-- Ô gõ tên món để tìm kiếm -->
                     <div>
-                        <h3 class="text-lg font-bold" id="modal-title-text">Hệ Thống Đăng Nhập Giáo Viên</h3>
-                        <p class="text-xs text-indigo-200">Xác thực quyền quản trị nội dung & dữ liệu môn Toán</p>
-                    </div>
-                </div>
-                <button onclick="closeTeacherModal()" class="text-slate-300 hover:text-white p-2 rounded-lg bg-white/10 transition">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="p-6 sm:p-8 overflow-y-auto flex-grow bg-slate-50">
-                
-                <!-- STATE A: LOGIN FORM -->
-                <div id="teacher-login-pane" class="max-w-md mx-auto py-6">
-                    <div class="text-center mb-8">
-                        <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
-                            <i class="fa-solid fa-key"></i>
-                        </div>
-                        <h4 class="text-2xl font-bold text-slate-900">Xác Thực Giáo Viên</h4>
-                        <p class="text-sm text-slate-500 mt-1">Đăng nhập tài khoản giáo viên để tiến hành đăng tải và kiểm duyệt dữ liệu học tập miễn phí.</p>
-                    </div>
-                    
-                    <form id="login-form" onsubmit="handleTeacherLogin(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1">Tài Khoản</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                    <i class="fa-solid fa-user"></i>
-                                </span>
-                                <input type="text" id="teacher-username" required placeholder="Nhập tài khoản..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 bg-white font-medium text-sm">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1">Mật Khẩu</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                    <i class="fa-solid fa-lock"></i>
-                                </span>
-                                <input type="password" id="teacher-password" required placeholder="Nhập mật khẩu..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 bg-white font-medium text-sm">
-                            </div>
-                        </div>
-                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-600/30 transition mt-2">
-                            <i class="fa-solid fa-right-to-bracket mr-2"></i> Đăng Nhập Hệ Thống
-                        </button>
-                    </form>
-                </div>
-
-                <!-- STATE B: TEACHER DASHBOARD -->
-                <div id="teacher-dashboard-pane" class="hidden space-y-8">
-                    <div class="bg-gradient-to-r from-indigo-500 to-violet-600 text-white p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-md">
-                        <div>
-                            <span class="bg-white/20 text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wider">Phiên làm việc bảo mật</span>
-                            <h4 class="text-xl font-bold mt-2">Xin chào, Quản Trị Viên</h4>
-                            <p class="text-sm text-indigo-100">Bạn có quyền quản trị và bổ sung dữ liệu học tập trực tuyến trên Cloud Firestore.</p>
-                        </div>
-                        <button onclick="handleTeacherLogout()" class="bg-white text-indigo-600 hover:bg-indigo-50 font-bold px-4 py-2 rounded-xl text-sm transition shadow">
-                            <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Đăng xuất
-                        </button>
-                    </div>
-
-                    <!-- UPLOAD DATA FORM SECTION -->
-                    <div class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm">
-                        <div class="border-b border-slate-100 pb-4 mb-6">
-                            <h4 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-                                <i class="fa-solid fa-cloud-arrow-up text-indigo-600"></i> Đăng Tải Bài Giảng Hoặc Bài Tập Mới
-                            </h4>
-                            <p class="text-sm text-slate-500 mt-0.5">Chọn file từ máy tính để cập nhật tài liệu lên đám mây trực tuyến.</p>
-                        </div>
-
-                        <form id="upload-data-form" onsubmit="handleDataUpload(event)" class="space-y-6">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Chọn Khối Lớp Áp Dụng *</label>
-                                    <select id="upload-grade" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 bg-white font-medium text-sm">
-                                        <option value="6">Toán Lớp 6</option>
-                                        <option value="7">Toán Lớp 7</option>
-                                        <option value="8">Toán Lớp 8</option>
-                                        <option value="9">Toán Lớp 9</option>
-                                        <option value="10">Toán Lớp 10</option>
-                                        <option value="11">Toán Lớp 11</option>
-                                        <option value="12" selected>Toán Lớp 12 (Luyện thi)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Loại Tài Liệu *</label>
-                                    <select id="upload-type" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 bg-white font-medium text-sm">
-                                        <option value="lesson">Bài giảng lý thuyết & Video</option>
-                                        <option value="exercise">Bài tập tự luyện có lời giải</option>
-                                        <option value="exam">Đề kiểm tra / Đề thi thử</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-1">Tiêu Đề Bài Giảng / Đề Thi *</label>
-                                <input type="text" id="upload-title" required placeholder="VD: Khảo sát hàm số bậc 3 và các dạng bài toán chứa tham số m" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 bg-white font-medium text-sm">
-                            </div>
-
-                            <!-- DRAG & DROP / FILE UPLOAD SECTION -->
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-1">Tải Tệp Lên Từ Máy Tính (PDF, Hình ảnh, Video, Word)</label>
-                                <div class="border-2 border-dashed border-slate-300 rounded-2xl p-6 text-center hover:border-indigo-500 transition bg-slate-50 relative cursor-pointer" onclick="document.getElementById('file-upload-input').click()">
-                                    <input type="file" id="file-upload-input" class="hidden" onchange="handleFileSelect(event)">
-                                    <div id="file-drop-area" class="space-y-2">
-                                        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-xl">
-                                            <i class="fa-solid fa-cloud-arrow-up"></i>
-                                        </div>
-                                        <p class="text-sm font-semibold text-slate-700">Kéo thả file vào đây hoặc <span class="text-indigo-600 underline">chọn từ máy tính</span></p>
-                                        <p class="text-xs text-slate-400" id="selected-file-name">Hỗ trợ PDF, Hình ảnh, Video, Word (Tối đa 50MB)</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-1">Ghi Chú Hoặc Mô Tả Ngắn</label>
-                                <input type="text" id="upload-desc" placeholder="Bao gồm câu hỏi chọn lọc có đáp án chi tiết." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 bg-white font-medium text-sm">
-                            </div>
-
-                            <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
-                                <button type="button" onclick="closeTeacherModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-100 transition">
-                                    Đóng cửa sổ
-                                </button>
-                                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2 text-sm">
-                                    <i class="fa-solid fa-cloud-arrow-up"></i> Xác Nhận Đăng Tải Lên Mây
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- RECENT UPLOADED TABLE BY TEACHER -->
-                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                        <h4 class="text-lg font-bold text-slate-900 mb-4 flex items-center justify-between">
-                            <span><i class="fa-solid fa-list-check text-indigo-600 mr-2"></i> Lịch Sử Đăng Tải Gần Đây</span>
-                            <span class="text-xs font-semibold text-indigo-400 uppercase">Đồng bộ Firebase Cloud</span>
-                        </h4>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse text-sm">
-                                <thead>
-                                    <tr class="border-b border-slate-200 text-slate-400 font-semibold text-xs uppercase">
-                                        <th class="py-3 px-4">Khối</th>
-                                        <th class="py-3 px-4">Loại</th>
-                                        <th class="py-3 px-4">Tiêu đề tài liệu</th>
-                                        <th class="py-3 px-4">Tên file</th>
-                                        <th class="py-3 px-4 text-right">Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="teacher-uploads-table-body" class="divide-y divide-slate-100 text-slate-700">
-                                    <!-- Dynamic -->
-                                </tbody>
-                            </table>
-                        </div>
+                        <input type="text" id="search-input" oninput="filterMenu()" placeholder="🔍 Gõ tên món để tìm kiếm nhanh..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
                     </div>
                 </div>
 
-            </div>
-        </div>
-    </div>
-
-    <!-- NOTIFICATION TOAST BOX -->
-    <div id="toast-notification" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 max-w-md bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-slate-800">
-        <div id="toast-icon" class="text-emerald-400 text-2xl">
-            <i class="fa-solid fa-circle-check"></i>
-        </div>
-        <div>
-            <h5 id="toast-title" class="font-bold text-sm">Thành công</h5>
-            <p id="toast-message" class="text-xs text-slate-300 mt-0.5">Dữ liệu đã được cập nhật thành công vào hệ thống.</p>
-        </div>
-    </div>
-
-    <!-- QUICK SEARCH MODAL -->
-    <div id="search-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-start justify-center pt-20 p-4">
-        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden p-6">
-            <div class="flex items-center space-x-3 border-b border-slate-200 pb-4">
-                <i class="fa-solid fa-magnifying-glass text-indigo-600 text-xl"></i>
-                <input type="text" id="global-search-input" oninput="handleGlobalSearch(event)" placeholder="Nhập tên chuyên đề, dạng toán hoặc bài tập..." class="w-full text-lg font-medium focus:outline-none">
-                <button onclick="closeQuickSearch()" class="text-slate-400 hover:text-slate-600 p-2"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div id="search-results" class="py-4 max-h-96 overflow-y-auto space-y-2">
-                <div class="text-center text-slate-400 py-8 text-sm">Nhập từ khóa để tìm kiếm bài giảng và tài liệu môn Toán từ lớp 6 đến 12.</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- FOOTER -->
-    <footer class="bg-slate-900 text-white pt-16 pb-12 border-t border-slate-800 mt-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-            <div>
-                <div class="flex items-center space-x-3 mb-4">
-                    <div class="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-                        M<span class="text-amber-400">∑</span>
+                <!-- Danh sách Combo -->
+                <div class="bg-white p-5 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold text-orange-500 mb-4 border-b pb-2">📦 Danh sách Combo</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="combo-list">
+                        <!-- Render bằng Javascript -->
                     </div>
-                    <span class="text-xl font-extrabold tracking-tight">Toán Online Free</span>
                 </div>
-                <p class="text-slate-400 text-sm leading-relaxed">
-                    Phần mềm học toán online hoàn toàn miễn phí cung cấp lộ trình chuẩn hóa từ lớp 6 đến lớp 12 cho học sinh toàn quốc.
-                </p>
+
+                <!-- Danh sách Món lẻ -->
+                <div class="bg-white p-5 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold text-blue-600 mb-4 border-b pb-2">🍜 Danh sách Món Lẻ</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="single-list">
+                        <!-- Render bằng Javascript -->
+                    </div>
+                </div>
             </div>
-            <div>
-                <h4 class="font-bold text-base mb-4 text-indigo-300">Khối Lớp THCS & THPT</h4>
-                <ul class="space-y-2.5 text-sm text-slate-400">
-                    <li><a href="#" onclick="selectGrade(6)" class="hover:text-white transition">Toán Lớp 6 - Nền tảng THCS</a></li>
-                    <li><a href="#" onclick="selectGrade(7)" class="hover:text-white transition">Toán Lớp 7 - Đại số & Hình học</a></li>
-                    <li><a href="#" onclick="selectGrade(8)" class="hover:text-white transition">Toán Lớp 8 - Đa thức & Định lý Thalès</a></li>
-                    <li><a href="#" onclick="selectGrade(9)" class="hover:text-white transition">Toán Lớp 9 - Ôn thi vào 10</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="font-bold text-base mb-4 text-indigo-300">Luyện Thi THPT Cấp 3</h4>
-                <ul class="space-y-2.5 text-sm text-slate-400">
-                    <li><a href="#" onclick="selectGrade(10)" class="hover:text-white transition">Toán Lớp 10 - Vector & Bất phương trình</a></li>
-                    <li><a href="#" onclick="selectGrade(11)" class="hover:text-white transition">Toán Lớp 11 - Không gian & Lượng giác</a></li>
-                    <li><a href="#" onclick="selectGrade(12)" class="hover:text-white transition">Toán Lớp 12 - Luyện thi Đại học</a></li>
-                    <li><button onclick="openTeacherModal()" class="text-amber-400 hover:underline font-semibold mt-1">Cổng đăng tải cho giáo viên</button></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="font-bold text-base mb-4 text-indigo-300">Hỗ Trợ Cộng Đồng</h4>
-                <p class="text-slate-400 text-sm mb-4">Chia sẻ kiến thức và tài liệu toán học miễn phí đến mọi học sinh.</p>
-                <div class="flex items-center">
-                    <input type="email" placeholder="Email của bạn..." class="bg-slate-800 border border-slate-700 px-4 py-2.5 rounded-l-xl text-sm text-white focus:outline-none w-full">
-                    <button onclick="showToast('Đăng ký thành công!', 'Chúng tôi đã gửi thông báo cập nhật tài liệu miễn phí vào email của bạn.', 'success')" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2.5 rounded-r-xl text-sm font-semibold transition">
-                        Gửi
+
+            <!-- CỘT PHẢI: HÓA ĐƠN / BILL (1/3 màn hình) -->
+            <div class="bg-white p-5 rounded-xl shadow-md flex flex-col justify-between h-fit sticky top-4">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2 flex justify-between items-center">
+                        <span>🛒 Hóa đơn hiện tại</span>
+                        <button onclick="clearCart()" class="text-xs text-red-500 hover:underline">Xóa tất cả</button>
+                    </h2>
+
+                    <div id="cart-items" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+                        <p class="text-gray-400 text-center py-8">Chưa có món nào được chọn</p>
+                    </div>
+                </div>
+
+                <div class="border-t mt-6 pt-4 space-y-3">
+                    <div class="flex justify-between text-lg font-bold">
+                        <span>Tổng tiền:</span>
+                        <span id="total-amount" class="text-orange-600">0 đ</span>
+                    </div>
+                    <button onclick="checkout()" class="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition shadow-lg">
+                        In / Thanh Toán
                     </button>
                 </div>
             </div>
+
         </div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
-            &copy; 2026 Toán Online Free System. All rights reserved. Hoàn toàn miễn phí phục vụ học tập.
-        </div>
-    </footer>
+    </div>
 
-    <!-- FIREBASE SDK SCRIPTS -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAZ6OXns0HiCpkJzRc3bEwEFb1aOXy7MBs",
-            authDomain: "khoideptrai-77c07.firebaseapp.com",
-            projectId: "khoideptrai-77c07",
-            storageBucket: "khoideptrai-77c07.firebasestorage.app",
-            messagingSenderId: "213193338682",
-            appId: "1:213193338682:web:9bff583b81835683bf2a03",
-            measurementId: "G-Z27FEVQ92D"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        window.mathHubData = {
-            6: { name: "Toán Lớp 6", badge: "Chương trình mới - Miễn phí 100%", description: "Hệ thống kiến thức Số học và Hình học trực quan dành cho học sinh chuẩn bị bước vào cấp 2.", lessons: [], exercises: [] },
-            7: { name: "Toán Lớp 7", badge: "Đại số hữu tỉ & Hình học phẳng - Miễn phí", description: "Khám phá thế giới số hữu tỉ, tỉ lệ thức và các định lý hình học tam giác quan trọng.", lessons: [], exercises: [] },
-            8: { name: "Toán Lớp 8", badge: "Đa thức, Hằng đẳng thức & Định lý Thalès", description: "Nền tảng đại số nâng cao với hằng đẳng thức đáng nhớ và phương trình bậc nhất một ẩn.", lessons: [], exercises: [] },
-            9: { name: "Toán Lớp 9", badge: "Luyện Thi Vào Lớp 10 Miễn Phí", description: "Hệ thống ôn thi cấp tốc vào lớp 10 với phương trình, hệ phương trình và hình học đường tròn.", lessons: [], exercises: [] },
-            10: { name: "Toán Lớp 10", badge: "Chương trình THPT Chuẩn Mới", description: "Làm quen với tư duy toán học cấp 3: Mệnh đề, Tập hợp, Hệ thức lượng trong tam giác và Vector.", lessons: [], exercises: [] },
-            11: { name: "Toán Lớp 11", badge: "Đại số nâng cao & Hình học không gian", description: "Chinh phục lượng giác, dãy số, giới hạn và quan hệ vuông góc trong không gian ba chiều.", lessons: [], exercises: [] },
-            12: { name: "Toán Lớp 12", badge: "Luyện Thi THPT Quốc Gia & Đại Học", description: "Giai đoạn nước rút ôn thi đại học với Khảo sát hàm số, Hình học Oxyz, Xác suất và Tích phân hoàn toàn miễn phí.", lessons: [], exercises: [] }
-        };
-
-        window.currentGrade = 12;
-        window.isTeacherLoggedIn = false;
-        window.selectedUploadedFileName = "";
-        window.selectedFileBase64 = "";
-        window.customTeacherUploads = [];
-
-        async function fetchDocuments() {
-            try {
-                const querySnapshot = await getDocs(collection(db, "teacher_uploads"));
-                window.customTeacherUploads = [];
-                querySnapshot.forEach((docSnap) => {
-                    window.customTeacherUploads.push({ id: docSnap.id, ...docSnap.data() });
-                });
-                renderTeacherUploadsTable();
-                if (window.currentGrade) selectGrade(window.currentGrade);
-            } catch (error) {
-                console.error("Lỗi tải dữ liệu từ Firestore: ", error);
-            }
-        }
-        fetchDocuments();
-
-        window.handleDataUpload = async function(event) {
-            event.preventDefault();
-            const grade = document.getElementById('upload-grade').value;
-            const type = document.getElementById('upload-type').value;
-            const title = document.getElementById('upload-title').value;
-            const desc = document.getElementById('upload-desc').value;
-
-            let filename = window.selectedUploadedFileName ? window.selectedUploadedFileName : "Tai_lieu_toan_hoc.pdf";
-            let fileUrl = window.selectedFileBase64 ? window.selectedFileBase64 : "";
-
-            const newEntry = {
-                grade: parseInt(grade),
-                type: type,
-                title: title,
-                filename: filename,
-                fileUrl: fileUrl,
-                desc: desc || "Tài liệu bổ trợ chuyên sâu môn Toán từ giáo viên.",
-                time: new Date().toLocaleDateString('vi-VN')
-            };
-
-            try {
-                const docRef = await addDoc(collection(db, "teacher_uploads"), newEntry);
-                newEntry.id = docRef.id;
-                window.customTeacherUploads.unshift(newEntry);
-
-                showToast('Đăng tải thành công!', `Đã đồng bộ lên mây Firebase cho Lớp ${grade}.`, 'success');
-                
-                document.getElementById('upload-title').value = '';
-                document.getElementById('upload-desc').value = '';
-                window.selectedUploadedFileName = "";
-                window.selectedFileBase64 = "";
-                document.getElementById('selected-file-name').innerText = "Hỗ trợ PDF, Hình ảnh, Video, Word (Tối đa 50MB)";
-
-                renderTeacherUploadsTable();
-                selectGrade(window.currentGrade);
-            } catch (error) {
-                console.error("Lỗi khi thêm tài liệu: ", error);
-                showToast('Lỗi đăng tải', 'Không thể kết nối cơ sở dữ liệu Firebase.', 'info');
-            }
-        }
-
-        window.deleteCustomUpload = async function(id) {
-            try {
-                await deleteDoc(doc(db, "teacher_uploads", id));
-                window.customTeacherUploads = window.customTeacherUploads.filter(u => u.id !== id);
-                renderTeacherUploadsTable();
-                selectGrade(window.currentGrade);
-                showToast('Đã xóa', 'Tài liệu đã được gỡ khỏi hệ thống đám mây.', 'info');
-            } catch (error) {
-                console.error("Lỗi khi xóa: ", error);
-            }
-        }
-    </script>
-
-    <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
-        function navigateToHome() {
-            document.getElementById('view-home').classList.remove('hidden');
-            document.getElementById('view-subject-hub').classList.add('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Dữ liệu bảng giá mới cập nhật
+        const combos = [
+            { name: "Bánh mì + trà tắc", mangDi: 30000, taiQuan: 39000 },
+            { name: "Bánh mì + cà phê sữa", mangDi: 33000, taiQuan: 41000 },
+            { name: "Bánh mì + nước ép", mangDi: 35000, taiQuan: 44000 },
+            { name: "Bún sốt tương đậu + trà tắc", mangDi: 35000, taiQuan: 44000 },
+            { name: "Bún sốt tương đậu + cà phê sữa", mangDi: 38000, taiQuan: 46000 },
+            { name: "Bún sốt tương đậu + nước ép", mangDi: 40000, taiQuan: 49000 },
+            { name: "Bún sốt tương đậu đặc biệt + trà tắc", mangDi: 40000, taiQuan: 49000 },
+            { name: "Bún sốt tương đậu đặc biệt + cà phê sữa", mangDi: 43000, taiQuan: 51000 },
+            { name: "Bún sốt tương đậu đặc biệt + nước ép", mangDi: 45000, taiQuan: 56000 },
+            { name: "Bún nước tương + trà tắc", mangDi: 37000, taiQuan: 46000 },
+            { name: "Bún nước tương + cà phê sữa", mangDi: 40000, taiQuan: 48000 },
+            { name: "Bún nước tương + nước ép", mangDi: 42000, taiQuan: 51000 }
+        ];
+
+        const singles = [
+            { name: "Bánh mì", mangDi: 20000, taiQuan: 20000 },
+            { name: "Bún thịt nướng", mangDi: 27000, taiQuan: 27000 },
+            { name: "Bún sốt tương đậu", mangDi: 25000, taiQuan: 25000 },
+            { name: "Bún sốt tương đậu đặc biệt", mangDi: 30000, taiQuan: 30000 },
+            { name: "Bún nước tương", mangDi: 27000, taiQuan: 27000 },
+            { name: "Bánh mì ốp la", mangDi: 17000, taiQuan: 17000 }
+        ];
+
+        let cart = [];
+        let currentType = 'mang_di';
+
+        function formatMoney(amount) {
+            return amount.toLocaleString('vi-VN') + ' đ';
         }
 
-        function selectGrade(gradeNumber) {
-            currentGrade = gradeNumber;
-            const data = mathHubData[gradeNumber];
-            if (!data) return;
-
-            document.getElementById('breadcrumb-grade-name').innerText = data.name;
-            document.getElementById('hub-badge').innerText = data.badge;
-            document.getElementById('hub-title').innerText = data.name + " - Cổng Tài Liệu & Bài Giảng";
-            document.getElementById('hub-desc').innerText = data.description;
-            document.getElementById('hub-lesson-count').innerText = data.lessons.length;
-            document.getElementById('hub-exercise-count').innerText = data.exercises.length + customTeacherUploads.filter(u => u.grade == gradeNumber).length;
-
-            const lessonsContainer = document.getElementById('lessons-grid');
-            lessonsContainer.innerHTML = `<div class="col-span-3 text-center py-12 text-slate-400 text-sm bg-white rounded-3xl border border-slate-100">Chưa có bài giảng mặc định. Vui lòng xem ở mục "Tài liệu GV đăng tải".</div>`;
-
-            const exercisesContainer = document.getElementById('exercises-list');
-            exercisesContainer.innerHTML = `<div class="text-center py-12 text-slate-400 text-sm">Chưa có đề thi mặc định.</div>`;
-
-            renderCustomUploadsForGrade(gradeNumber);
-
-            document.getElementById('view-home').classList.add('hidden');
-            document.getElementById('view-subject-hub').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        function isItemSelected(category, index) {
+            return cart.some(item => item.category === category && item.index === index);
         }
 
-        function renderCustomUploadsForGrade(gradeNum) {
-            const listEl = document.getElementById('custom-uploads-list');
-            const filtered = customTeacherUploads.filter(u => u.grade == gradeNum);
-            document.getElementById('custom-badge-count').innerText = filtered.length;
+        function renderMenu(filteredCombos = combos, filteredSingles = singles) {
+            // Render Combo
+            const comboContainer = document.getElementById('combo-list');
+            if (filteredCombos.length === 0) {
+                comboContainer.innerHTML = `<p class="text-gray-400 text-sm col-span-2 text-center py-4">Không tìm thấy combo phù hợp</p>`;
+            } else {
+                comboContainer.innerHTML = filteredCombos.map((item) => {
+                    const originalIndex = combos.indexOf(item);
+                    const selected = isItemSelected('combo', originalIndex);
+                    
+                    const cardStyle = selected 
+                        ? "bg-green-50 border-green-500 shadow-sm ring-1 ring-green-500" 
+                        : "bg-orange-50/40 border-gray-200 hover:shadow-md";
 
-            if (filtered.length === 0) {
-                listEl.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">Chưa có tài liệu nào được giáo viên đăng tải cho lớp này.</div>`;
-                return;
-            }
-
-            listEl.innerHTML = '';
-            filtered.forEach(item => {
-                let badgeColor = 'bg-indigo-50 text-indigo-600';
-                if(item.type === 'exercise') badgeColor = 'bg-amber-50 text-amber-700';
-                if(item.type === 'exam') badgeColor = 'bg-rose-50 text-rose-600';
-
-                listEl.innerHTML += `
-                    <div class="py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div class="flex items-start space-x-3">
-                            <div class="w-10 h-10 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
-                                <i class="fa-solid fa-cloud-arrow-down"></i>
-                            </div>
+                    return `
+                        <div class="border rounded-lg p-3 flex flex-col justify-between transition duration-200 ${cardStyle}">
                             <div>
-                                <h5 class="font-bold text-slate-900 text-base">${item.title}</h5>
-                                <p class="text-xs text-slate-500 mt-0.5">${item.desc}</p>
-                                <div class="flex items-center gap-3 text-xs text-slate-400 mt-2">
-                                    <span class="${badgeColor} px-2 py-0.5 rounded font-semibold uppercase">${item.type}</span>
-                                    <span><i class="fa-solid fa-file mr-1"></i> ${item.filename}</span>
-                                    <span><i class="fa-regular fa-clock mr-1"></i> ${item.time}</span>
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-semibold text-gray-800 text-sm mb-1">${item.name}</h3>
+                                    ${selected ? '<span class="text-xs bg-green-600 text-white px-1.5 py-0.5 rounded font-bold">Đã chọn</span>' : ''}
                                 </div>
+                                <p class="text-xs text-gray-500">Giá: ${formatMoney(currentType === 'mang_di' ? item.mangDi : item.taiQuan)}</p>
                             </div>
+                            <button onclick="addToCart('combo', ${originalIndex})" class="mt-3 bg-orange-500 text-white text-xs py-1.5 px-3 rounded hover:bg-orange-600 transition font-medium">
+                                + Thêm Combo
+                            </button>
                         </div>
-                        <button onclick="viewDocument('${item.title}', '${item.filename}', '${item.fileUrl}')" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-4 py-2 rounded-xl text-sm transition flex items-center gap-2 flex-shrink-0 shadow-sm">
-                            <i class="fa-solid fa-eye"></i> Xem Trực Tiếp
-                        </button>
-                    </div>
-                `;
-            });
+                    `;
+                }).join('');
+            }
+
+            // Render Món lẻ
+            const singleContainer = document.getElementById('single-list');
+            if (filteredSingles.length === 0) {
+                singleContainer.innerHTML = `<p class="text-gray-400 text-sm col-span-2 text-center py-4">Không tìm thấy món lẻ phù hợp</p>`;
+            } else {
+                singleContainer.innerHTML = filteredSingles.map((item) => {
+                    const originalIndex = singles.indexOf(item);
+                    const selected = isItemSelected('single', originalIndex);
+
+                    const cardStyle = selected 
+                        ? "bg-green-50 border-green-500 shadow-sm ring-1 ring-green-500" 
+                        : "bg-blue-50/40 border-gray-200 hover:shadow-md";
+
+                    return `
+                        <div class="border rounded-lg p-3 flex flex-col justify-between transition duration-200 ${cardStyle}">
+                            <div>
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-semibold text-gray-800 text-sm mb-1">${item.name}</h3>
+                                    ${selected ? '<span class="text-xs bg-green-600 text-white px-1.5 py-0.5 rounded font-bold">Đã chọn</span>' : ''}
+                                </div>
+                                <p class="text-xs text-gray-500">Giá: ${formatMoney(currentType === 'mang_di' ? item.mangDi : item.taiQuan)}</p>
+                            </div>
+                            <button onclick="addToCart('single', ${originalIndex})" class="mt-3 bg-blue-600 text-white text-xs py-1.5 px-3 rounded hover:bg-blue-700 transition font-medium">
+                                + Thêm Lẻ
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
         }
 
-        function viewDocument(title, filename, fileUrl) {
-            document.getElementById('viewer-file-title').innerText = title;
-            document.getElementById('viewer-file-name').innerText = filename || "Tài liệu học tập";
-            const container = document.getElementById('viewer-content-container');
-            container.innerHTML = '';
+        function filterMenu() {
+            const keyword = document.getElementById('search-input').value.toLowerCase().trim();
+            const matchedCombos = combos.filter(item => item.name.toLowerCase().includes(keyword));
+            const matchedSingles = singles.filter(item => item.name.toLowerCase().includes(keyword));
+            renderMenu(matchedCombos, matchedSingles);
+        }
 
-            if (fileUrl && fileUrl !== 'undefined' && fileUrl !== '') {
-                if (filename.match(/\.(jpeg|jpg|gif|png)$/i)) {
-                    container.innerHTML = `<img src="${fileUrl}" class="max-w-full max-h-full object-contain rounded-xl shadow-lg" alt="Document image">`;
-                } else if (filename.match(/\.(mp4|webm|ogg)$/i)) {
-                    container.innerHTML = `<video src="${fileUrl}" controls autoplay class="max-w-full max-h-full rounded-xl shadow-lg"></video>`;
-                } else {
-                    container.innerHTML = `<iframe src="${fileUrl}" class="w-full h-full border-0"></iframe>`;
+        function changeOrderType() {
+            const radios = document.getElementsByName('orderType');
+            for (const radio of radios) {
+                if (radio.checked) {
+                    currentType = radio.value;
+                    break;
                 }
-            } else {
-                container.innerHTML = `
-                    <div class="text-center p-8 max-w-lg bg-white rounded-3xl shadow-xl border border-slate-200 m-auto">
-                        <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
-                            <i class="fa-solid fa-file-pdf"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-slate-900 mb-2">${title}</h3>
-                        <p class="text-sm text-slate-500 mb-6">Tài liệu trực tuyến hiển thị trực tiếp trên hệ thống Toán Online Free.</p>
-                        <button onclick="closeDocumentViewer()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition">
-                            Đã hiểu & Quay lại học
-                        </button>
-                    </div>
-                `;
             }
-
-            document.getElementById('document-viewer-modal').classList.remove('hidden');
-        }
-
-        function closeDocumentViewer() {
-            document.getElementById('document-viewer-modal').classList.add('hidden');
-            document.getElementById('viewer-content-container').innerHTML = '';
-        }
-
-        function switchTab(tabName) {
-            const lessonsBtn = document.getElementById('tab-lessons-btn');
-            const exercisesBtn = document.getElementById('tab-exercises-btn');
-            const customBtn = document.getElementById('tab-custom-btn');
-
-            const lessonsContent = document.getElementById('tab-lessons-content');
-            const exercisesContent = document.getElementById('tab-exercises-content');
-            const customContent = document.getElementById('tab-custom-content');
-
-            lessonsBtn.className = "py-3 font-semibold text-slate-500 hover:text-indigo-600 whitespace-nowrap text-base flex items-center gap-2 border-b-2 border-transparent";
-            exercisesBtn.className = "py-3 font-semibold text-slate-500 hover:text-indigo-600 whitespace-nowrap text-base flex items-center gap-2 border-b-2 border-transparent";
-            customBtn.className = "py-3 font-semibold text-slate-500 hover:text-indigo-600 whitespace-nowrap text-base flex items-center gap-2 border-b-2 border-transparent";
-
-            lessonsContent.classList.add('hidden');
-            exercisesContent.classList.add('hidden');
-            customContent.classList.add('hidden');
-
-            if (tabName === 'lessons') {
-                lessonsBtn.className = "py-3 font-bold text-indigo-600 border-b-2 border-indigo-600 whitespace-nowrap text-base flex items-center gap-2";
-                lessonsContent.classList.remove('hidden');
-            } else if (tabName === 'exercises') {
-                exercisesBtn.className = "py-3 font-bold text-indigo-600 border-b-2 border-indigo-600 whitespace-nowrap text-base flex items-center gap-2";
-                exercisesContent.classList.remove('hidden');
-            } else if (tabName === 'custom') {
-                customBtn.className = "py-3 font-bold text-indigo-600 border-b-2 border-indigo-600 whitespace-nowrap text-base flex items-center gap-2";
-                customContent.classList.remove('hidden');
-            }
-        }
-
-        function openTeacherModal() {
-            document.getElementById('teacher-modal').classList.remove('hidden');
-            if (isTeacherLoggedIn) {
-                document.getElementById('teacher-login-pane').classList.add('hidden');
-                document.getElementById('teacher-dashboard-pane').classList.remove('hidden');
-                document.getElementById('modal-title-text').innerText = "Cổng Quản Trị & Đăng Tải Dữ Liệu Giáo Viên";
-                renderTeacherUploadsTable();
-            } else {
-                document.getElementById('teacher-login-pane').classList.remove('hidden');
-                document.getElementById('teacher-dashboard-pane').classList.add('hidden');
-                document.getElementById('modal-title-text').innerText = "Hệ Thống Đăng Nhập Giáo Viên";
-            }
-        }
-
-        function closeTeacherModal() {
-            document.getElementById('teacher-modal').classList.add('hidden');
-        }
-
-        function handleTeacherLogin(event) {
-            event.preventDefault();
-            const user = document.getElementById('teacher-username').value.trim();
-            const pass = document.getElementById('teacher-password').value.trim();
-
-            if (user === "admin@nhung" && pass === "307207") {
-                isTeacherLoggedIn = true;
-                showToast('Đăng nhập thành công', 'Chào mừng Quản Trị Viên đã trở lại!', 'success');
-                openTeacherModal();
-            } else {
-                showToast('Lỗi đăng nhập', 'Sai tài khoản hoặc mật khẩu! Vui lòng kiểm tra lại.', 'info');
-            }
-        }
-
-        function handleTeacherLogout() {
-            isTeacherLoggedIn = false;
-            showToast('Đã đăng xuất', 'Phiên làm việc quản trị đã được kết thúc an toàn.', 'info');
-            openTeacherModal();
-        }
-
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (file) {
-                selectedUploadedFileName = file.name;
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    selectedFileBase64 = e.target.result;
-                    document.getElementById('selected-file-name').innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-file-circle-check mr-1"></i> Đã chọn file: ${file.name}</span>`;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function renderTeacherUploadsTable() {
-            const tbody = document.getElementById('teacher-uploads-table-body');
-            if(customTeacherUploads.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">Chưa có dữ liệu nào trên mây Firebase.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = '';
-            customTeacherUploads.forEach(item => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-3 px-4 font-bold text-indigo-600">Lớp ${item.grade}</td>
-                        <td class="py-3 px-4"><span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs font-semibold uppercase">${item.type}</span></td>
-                        <td class="py-3 px-4 font-medium text-slate-800">${item.title}</td>
-                        <td class="py-3 px-4 text-slate-500 text-xs">${item.filename}</td>
-                        <td class="py-3 px-4 text-right flex justify-end gap-2">
-                            <button onclick="viewDocument('${item.title}', '${item.filename}', '${item.fileUrl}')" class="text-indigo-600 hover:text-indigo-800 p-1.5 rounded-lg hover:bg-indigo-50 transition" title="Xem trực tiếp">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                            <button onclick="deleteCustomUpload('${item.id}')" class="text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 transition" title="Xóa tài liệu">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
+            cart.forEach(item => {
+                const source = item.category === 'combo' ? combos[item.index] : singles[item.index];
+                item.price = currentType === 'mang_di' ? source.mangDi : source.taiQuan;
             });
+            filterMenu();
+            renderCart();
         }
 
-        function showQuickSearch() {
-            document.getElementById('search-modal').classList.remove('hidden');
-            document.getElementById('global-search-input').focus();
-        }
-
-        function closeQuickSearch() {
-            document.getElementById('search-modal').classList.add('hidden');
-        }
-
-        function handleGlobalSearch(event) {
-            const query = event.target.value.toLowerCase().trim();
-            const resultsContainer = document.getElementById('search-results');
+        function addToCart(category, index) {
+            const source = category === 'combo' ? combos[index] : singles[index];
+            const price = currentType === 'mang_di' ? source.mangDi : source.taiQuan;
             
-            if(!query) {
-                resultsContainer.innerHTML = `<div class="text-center text-slate-400 py-8 text-sm">Nhập từ khóa để tìm kiếm bài giảng và tài liệu môn Toán từ lớp 6 đến 12.</div>`;
+            const existingItem = cart.find(i => i.category === category && i.index === index);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    category: category,
+                    index: index,
+                    name: source.name,
+                    price: price,
+                    quantity: 1
+                });
+            }
+            filterMenu();
+            renderCart();
+        }
+
+        function updateQuantity(cartIndex, delta) {
+            cart[cartIndex].quantity += delta;
+            if (cart[cartIndex].quantity <= 0) {
+                cart.splice(cartIndex, 1);
+            }
+            filterMenu();
+            renderCart();
+        }
+
+        function clearCart() {
+            cart = [];
+            filterMenu();
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="text-gray-400 text-center py-8">Chưa có món nào được chọn</p>`;
+                document.getElementById('total-amount').innerText = '0 đ';
                 return;
             }
 
-            let found = [];
-            customTeacherUploads.forEach(u => {
-                if(u.title.toLowerCase().includes(query) || u.desc.toLowerCase().includes(query)) {
-                    found.push({ grade: u.grade, type: 'Tài liệu GV', title: u.title, desc: u.desc });
-                }
-            });
-
-            if(found.length === 0) {
-                resultsContainer.innerHTML = `<div class="text-center text-slate-500 py-8 text-sm">Không tìm thấy tài liệu phù hợp với từ khóa "<span class="font-bold text-slate-800">${query}</span>".</div>`;
-                return;
-            }
-
-            resultsContainer.innerHTML = '';
-            found.forEach(item => {
-                resultsContainer.innerHTML += `
-                    <div onclick="selectGrade(${item.grade}); closeQuickSearch();" class="p-3 hover:bg-indigo-50 rounded-xl cursor-pointer transition flex items-center justify-between">
-                        <div>
-                            <span class="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded">Lớp ${item.grade} • ${item.type}</span>
-                            <h5 class="font-bold text-slate-900 text-sm mt-1">${item.title}</h5>
-                            <p class="text-xs text-slate-500 truncate max-w-md">${item.desc}</p>
+            let total = 0;
+            container.innerHTML = cart.map((item, idx) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                return `
+                    <div class="flex justify-between items-center bg-gray-50 p-2.5 rounded-lg border text-sm">
+                        <div class="flex-1 pr-2">
+                            <p class="font-medium text-gray-800">${item.name}</p>
+                            <p class="text-xs text-gray-500">${formatMoney(item.price)} x ${item.quantity}</p>
                         </div>
-                        <i class="fa-solid fa-chevron-right text-slate-300 text-sm"></i>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="updateQuantity(${idx}, -1)" class="w-6 h-6 bg-gray-200 rounded text-gray-700 font-bold hover:bg-gray-300">-</button>
+                            <span class="text-xs font-semibold w-4 text-center">${item.quantity}</span>
+                            <button onclick="updateQuantity(${idx}, 1)" class="w-6 h-6 bg-gray-200 rounded text-gray-700 font-bold hover:bg-gray-300">+</button>
+                        </div>
                     </div>
                 `;
-            });
+            }).join('');
+
+            document.getElementById('total-amount').innerText = formatMoney(total);
         }
 
-        function showToast(title, message, type = 'success') {
-            const toast = document.getElementById('toast-notification');
-            const titleEl = document.getElementById('toast-title');
-            const msgEl = document.getElementById('toast-message');
-            const iconEl = document.getElementById('toast-icon');
-
-            titleEl.innerText = title;
-            msgEl.innerText = message;
-
-            if(type === 'success') {
-                iconEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i>`;
-            } else {
-                iconEl.innerHTML = `<i class="fa-solid fa-circle-info text-blue-400"></i>`;
+        function checkout() {
+            if (cart.length === 0) {
+                alert('Vui lòng chọn món trước khi thanh toán!');
+                return;
             }
-
-            toast.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-24', 'opacity-0');
-            }, 3500);
+            const typeText = currentType === 'mang_di' ? 'Mang đi' : 'Ăn tại quán';
+            let total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            alert(`Thanh toán thành công!\nHình thức: ${typeText}\nTổng tiền: ${formatMoney(total)}`);
+            cart = [];
+            filterMenu();
+            renderCart();
         }
 
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        }
+        // Khởi chạy khi tải trang
+        renderMenu();
     </script>
 </body>
 </html>
