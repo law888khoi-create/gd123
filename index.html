@@ -33,7 +33,7 @@
                 const finalData = {
                     orderName: `Đơn #${orderNumber}`,
                     ...orderData,
-                    completedAt: new Date().toLocaleString('vi-VN') // Lưu thời gian hoàn thành chính xác
+                    completedAt: new Date().toLocaleString('vi-VN')
                 };
 
                 await addDoc(collection(db, "orders"), finalData);
@@ -209,21 +209,26 @@
             <button onclick="closeCheckoutModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-xl">×</button>
             
             <h3 class="text-xl font-bold text-center text-gray-800 mb-1">Xác Nhận Thanh Toán</h3>
-            <p id="modal-order-type" class="text-center text-sm text-gray-500 mb-3 font-medium">Hình thức: Mang đi</p>
+            <p id="modal-order-type" class="text-center text-sm text-gray-500 mb-2 font-medium">Hình thức: Mang đi</p>
 
             <div class="flex flex-col items-center justify-center bg-gray-50 p-3 rounded-xl border">
                 <p class="text-xs font-bold text-gray-700 mb-1">QUÉT MÃ ĐỂ CHUYỂN TIỀN</p>
                 <p class="text-xs text-gray-500 mb-2 font-semibold">Techcombank - 3777888234</p>
                 
-                <img id="dynamic-qr-img" src="" alt="QR Thanh Toan" class="w-48 h-48 object-contain rounded-lg border shadow-sm bg-white">
+                <img id="dynamic-qr-img" src="" alt="QR Thanh Toan" class="w-44 h-44 object-contain rounded-lg border shadow-sm bg-white">
                 
-                <div class="mt-3 text-center">
+                <div class="mt-2 text-center">
+                    <span class="text-xs text-gray-500 block">Nội dung chuyển khoản:</span>
+                    <span id="modal-content" class="text-xs font-bold text-blue-600 block bg-blue-50 px-2 py-1 rounded mt-0.5">...</span>
+                </div>
+
+                <div class="mt-3 text-center border-t pt-2 w-full">
                     <span class="text-xs text-gray-500 block">Tổng tiền cần thanh toán:</span>
                     <span id="modal-total" class="text-2xl font-extrabold text-orange-600">0 đ</span>
                 </div>
             </div>
 
-            <div class="mt-5 flex space-x-3">
+            <div class="mt-4 flex space-x-3">
                 <button onclick="closeCheckoutModal()" class="w-1/2 bg-gray-200 text-gray-700 py-2.5 rounded-xl font-bold hover:bg-gray-300 transition">
                     Đóng
                 </button>
@@ -424,11 +429,19 @@
             let total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const typeText = currentType === 'mang_di' ? 'Mang đi' : 'Ăn tại quán';
 
+            // Tạo chuỗi nội dung chuyển khoản tự động từ danh sách món trong giỏ hàng
+            let transferContent = cart.map(i => `${i.name} (x${i.quantity})`).join(', ');
+            if (transferContent.length > 50) {
+                transferContent = transferContent.substring(0, 47) + '...'; // Giới hạn ký tự nội dung chuyển khoản cho gọn
+            }
+
             document.getElementById('modal-order-type').innerText = `Hình thức: ${typeText}`;
             document.getElementById('modal-total').innerText = formatMoney(total);
+            document.getElementById('modal-content').innerText = transferContent;
 
-            // Tạo mã QR VietQR tự động theo số tiền
-            const qrUrl = `https://img.vietqr.io/image/TCB-3777888234-compact2.png?amount=${total}&addInfo=Thanh%20toan%20don%20hang&accountName=HO%20KINH%20DOANH%203S%20TEA`;
+            // Tạo mã QR VietQR tự động kèm số tiền và nội dung chuyển khoản
+            const encodedMemo = encodeURIComponent(transferContent);
+            const qrUrl = `https://img.vietqr.io/image/TCB-3777888234-compact2.png?amount=${total}&addInfo=${encodedMemo}&accountName=HO%20KINH%20DOANH%203S%20TEA`;
             document.getElementById('dynamic-qr-img').src = qrUrl;
 
             document.getElementById('checkout-modal').classList.remove('hidden');
