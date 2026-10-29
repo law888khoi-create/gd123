@@ -130,13 +130,13 @@
         };
     </script>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body class="bg-gray-50 text-gray-800 font-sans flex flex-col min-h-screen">
 
     <!-- MODAL ĐĂNG NHẬP ADMIN -->
     <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-3">
-            <input type="text" id="admin-user" autocomplete="off" class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
-            <input type="password" id="admin-pass" autocomplete="new-password" class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+            <input type="text" id="admin-user" placeholder="Mời bạn nhập tài khoản" autocomplete="off" class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+            <input type="password" id="admin-pass" placeholder="Mời bạn nhập mật khẩu" autocomplete="new-password" class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
             <p id="login-error" class="text-xs text-red-500 text-center hidden">Tài khoản hoặc mật khẩu không chính xác!</p>
             <button onclick="handleAdminLogin()" class="w-full bg-orange-600 text-white py-2.5 rounded-xl font-bold hover:bg-orange-700 transition shadow-md">
                 Đăng Nhập
@@ -144,7 +144,7 @@
         </div>
     </div>
 
-    <div class="container mx-auto p-4 max-w-7xl">
+    <div class="container mx-auto p-4 max-w-7xl flex-1">
         <header class="mb-6 flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-md gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-orange-600">Ứng dụng Bán Hàng</h1>
@@ -208,6 +208,11 @@
 
         </div>
     </div>
+
+    <!-- DÒNG THÔNG TIN LIÊN HỆ Ở DƯỚI CÙNG -->
+    <footer class="text-center py-4 text-xs text-gray-500 border-t bg-white mt-8">
+        Mọi thắc mắc liên hệ <a href="mailto:khoieryk07a@gmail.com" class="text-blue-600 hover:underline">khoieryk07a@gmail.com</a> hoặc <a href="mailto:thuongdelwyn@gmail.com" class="text-blue-600 hover:underline">thuongdelwyn@gmail.com</a>
+    </footer>
 
     <!-- MODAL LỊCH SỬ & DOANH THU -->
     <div id="history-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
@@ -303,7 +308,7 @@
             const pass = document.getElementById('admin-pass').value.trim();
             const errorText = document.getElementById('login-error');
 
-            if (user === 'htchuche27' && pass === 'ht2007@') {
+            if (user === '3steaxinchao' && pass === '3steacamon99') {
                 document.getElementById('login-modal').classList.add('hidden');
                 document.getElementById('admin-badge').classList.remove('hidden');
             } else {
@@ -394,11 +399,10 @@
                 });
             }
 
-            // Kích hoạt hiệu ứng Animation nháy sáng khung món ăn vừa được chọn
             const cardEl = document.getElementById(`card-${category}-${index}`);
             if (cardEl) {
                 cardEl.classList.remove('animate-select-flash');
-                void cardEl.offsetWidth; // Trigger reflow để chạy lại animation nếu bấm liên tục
+                void cardEl.offsetWidth;
                 cardEl.classList.add('animate-select-flash');
             }
 
