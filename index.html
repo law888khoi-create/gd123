@@ -24,7 +24,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Lưu đơn hàng lên Firebase
+        // Lưu đơn hàng và thời gian hoàn thành lên Firebase
         window.saveOrderToFirebase = async function(orderData) {
             try {
                 const querySnapshot = await getDocs(collection(db, "orders"));
@@ -33,18 +33,18 @@
                 const finalData = {
                     orderName: `Đơn #${orderNumber}`,
                     ...orderData,
-                    createdAt: new Date().toLocaleString('vi-VN')
+                    completedAt: new Date().toLocaleString('vi-VN') // Lưu thời gian hoàn thành chính xác
                 };
 
                 await addDoc(collection(db, "orders"), finalData);
-                alert(`Thanh toán thành công và đã lưu "${finalData.orderName}" lên Firebase!`);
+                alert(`Thanh toán thành công! Đã lưu "${finalData.orderName}" vào lúc ${finalData.completedAt}`);
             } catch (e) {
                 console.error("Lỗi khi lưu Firebase: ", e);
                 alert("Lưu đơn hàng thất bại, vui lòng kiểm tra lại kết nối.");
             }
         };
 
-        // Lấy lịch sử đơn hàng và tính tổng doanh thu
+        // Lấy lịch sử đơn hàng kèm thời gian hoàn thành và tổng doanh thu
         window.loadOrderHistoryFromFirebase = async function() {
             const container = document.getElementById('history-list-container');
             container.innerHTML = `<p class="text-center text-gray-400 py-4">Đang tải dữ liệu từ Firebase...</p>`;
@@ -76,9 +76,9 @@
                         <div class="border rounded-xl p-3 bg-gray-50 space-y-2 text-sm">
                             <div class="flex justify-between items-center font-bold text-gray-800">
                                 <span class="text-orange-600">${order.orderName || 'Đơn #' + (index+1)}</span>
-                                <span class="text-xs text-gray-500">${order.createdAt}</span>
+                                <span class="text-xs text-blue-600 font-semibold">🕒 ${order.completedAt || 'Chưa cập nhật'}</span>
                             </div>
-                            <p class="text-xs text-gray-600 font-medium">Hình thức: <span class="text-blue-600">${order.orderType}</span></p>
+                            <p class="text-xs text-gray-600 font-medium">Hình thức: <span class="text-gray-800">${order.orderType}</span></p>
                             <div>
                                 <p class="text-xs text-gray-500 mb-1">Món đã đặt:</p>
                                 <div>${itemsHtml}</div>
@@ -215,7 +215,6 @@
                 <p class="text-xs font-bold text-gray-700 mb-1">QUÉT MÃ ĐỂ CHUYỂN TIỀN</p>
                 <p class="text-xs text-gray-500 mb-2 font-semibold">Techcombank - 3777888234</p>
                 
-                <!-- Hiển thị mã QR sinh tự động kèm số tiền qua API VietQR -->
                 <img id="dynamic-qr-img" src="" alt="QR Thanh Toan" class="w-48 h-48 object-contain rounded-lg border shadow-sm bg-white">
                 
                 <div class="mt-3 text-center">
@@ -428,7 +427,7 @@
             document.getElementById('modal-order-type').innerText = `Hình thức: ${typeText}`;
             document.getElementById('modal-total').innerText = formatMoney(total);
 
-            // Tự động tạo QR chuẩn VietQR với tài khoản Techcombank: 3777888234 và số tiền tương ứng
+            // Tạo mã QR VietQR tự động theo số tiền
             const qrUrl = `https://img.vietqr.io/image/TCB-3777888234-compact2.png?amount=${total}&addInfo=Thanh%20toan%20don%20hang&accountName=HO%20KINH%20DOANH%203S%20TEA`;
             document.getElementById('dynamic-qr-img').src = qrUrl;
 
