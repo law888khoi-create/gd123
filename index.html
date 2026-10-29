@@ -5,13 +5,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ thống Bán hàng - Quán Ăn</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAZ6OXns0HiCpkJzRc3bEwEFb1aOXy7MBs", 
+            authDomain: "khoideptrai-77c07.firebaseapp.com", 
+            projectId: "khoideptrai-77c07", 
+            storageBucket: "khoideptrai-77c07.firebasestorage.app", 
+            messagingSenderId: "213193338682", 
+            appId: "1:213193338682:web:9bff583b81835683bf2a03", 
+            measurementId: "G-Z27FEVQ92D" 
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Lưu đơn hàng lên Firebase
+        window.saveOrderToFirebase = async function(orderData) {
+            try {
+                const querySnapshot = await getDocs(collection(db, "orders"));
+                const orderNumber = querySnapshot.size + 1;
+                
+                const finalData = {
+                    orderName: `Đơn #${orderNumber}`,
+                    ...orderData,
+                    createdAt: new Date().toLocaleString('vi-VN')
+                };
+
+                await addDoc(collection(db, "orders"), finalData);
+                alert(`Thanh toán thành công và đã lưu "${finalData.orderName}" lên Firebase!`);
+            } catch (e) {
+                console.error("Lỗi khi lưu Firebase: ", e);
+                alert("Lưu đơn hàng thất bại, vui lòng kiểm tra lại kết nối.");
+            }
+        };
+
+        // Lấy lịch sử đơn hàng và tính tổng doanh thu
+        window.loadOrderHistoryFromFirebase = async function() {
+            const container = document.getElementById('history-list-container');
+            container.innerHTML = `<p class="text-center text-gray-400 py-4">Đang tải dữ liệu từ Firebase...</p>`;
+            
+            document.getElementById('history-modal').classList.remove('hidden');
+            document.getElementById('history-modal').classList.add('flex');
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "orders"));
+                let totalRevenue = 0;
+                let htmlContent = '';
+
+                if (querySnapshot.empty) {
+                    container.innerHTML = `<p class="text-center text-gray-400 py-8">Chưa có đơn hàng nào được lưu.</p>`;
+                    document.getElementById('total-revenue').innerText = '0 đ';
+                    return;
+                }
+
+                let orders = [];
+                querySnapshot.forEach((doc) => {
+                    orders.push(doc.data());
+                });
+
+                orders.forEach((order, index) => {
+                    totalRevenue += order.totalAmount;
+                    let itemsHtml = order.items.map(i => `<span class="text-xs bg-gray-100 px-2 py-0.5 rounded mr-1 mb-1 inline-block">${i.name} (x${i.quantity})</span>`).join('');
+                    
+                    htmlContent += `
+                        <div class="border rounded-xl p-3 bg-gray-50 space-y-2 text-sm">
+                            <div class="flex justify-between items-center font-bold text-gray-800">
+                                <span class="text-orange-600">${order.orderName || 'Đơn #' + (index+1)}</span>
+                                <span class="text-xs text-gray-500">${order.createdAt}</span>
+                            </div>
+                            <p class="text-xs text-gray-600 font-medium">Hình thức: <span class="text-blue-600">${order.orderType}</span></p>
+                            <div>
+                                <p class="text-xs text-gray-500 mb-1">Món đã đặt:</p>
+                                <div>${itemsHtml}</div>
+                            </div>
+                            <div class="flex justify-between items-center pt-2 border-t font-bold">
+                                <span class="text-gray-700">Thành tiền:</span>
+                                <span class="text-orange-600">${order.totalAmount.toLocaleString('vi-VN')} đ</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = htmlContent;
+                document.getElementById('total-revenue').innerText = totalRevenue.toLocaleString('vi-VN') + ' đ';
+
+            } catch (e) {
+                console.error("Lỗi tải lịch sử: ", e);
+                container.innerHTML = `<p class="text-center text-red-500 py-4">Lỗi khi tải dữ liệu từ Firebase.</p>`;
+            }
+        };
+    </script>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
 
     <div class="container mx-auto p-4 max-w-7xl">
-        <header class="mb-6 text-center">
-            <h1 class="text-3xl font-bold text-orange-600">Ứng dụng Bán Hàng</h1>
-            <p class="text-gray-500">Cập nhật bảng giá mới nhất (Mang đi & Tại quán)</p>
+        <header class="mb-6 flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-md gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-orange-600">Ứng dụng Bán Hàng</h1>
+                <p class="text-xs text-gray-500">Quản lý bán hàng & Doanh thu trực tuyến</p>
+            </div>
+            <button onclick="window.loadOrderHistoryFromFirebase()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition shadow-md flex items-center space-x-2 text-sm">
+                <span>📊 Lịch sử & Doanh thu</span>
+            </button>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -42,17 +142,13 @@
                 <!-- Danh sách Combo -->
                 <div class="bg-white p-5 rounded-xl shadow-md">
                     <h2 class="text-xl font-bold text-orange-500 mb-4 border-b pb-2">📦 Danh sách Combo</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="combo-list">
-                        <!-- Render bằng Javascript -->
-                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="combo-list"></div>
                 </div>
 
                 <!-- Danh sách Món lẻ -->
                 <div class="bg-white p-5 rounded-xl shadow-md">
                     <h2 class="text-xl font-bold text-blue-600 mb-4 border-b pb-2">🍜 Danh sách Món Lẻ</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="single-list">
-                        <!-- Render bằng Javascript -->
-                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="single-list"></div>
                 </div>
             </div>
 
@@ -74,8 +170,8 @@
                         <span>Tổng tiền:</span>
                         <span id="total-amount" class="text-orange-600">0 đ</span>
                     </div>
-                    <button onclick="checkout()" class="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition shadow-lg">
-                        In / Thanh Toán
+                    <button onclick="openCheckoutModal()" class="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition shadow-lg">
+                        In / Thanh Toán (QR)
                     </button>
                 </div>
             </div>
@@ -83,8 +179,63 @@
         </div>
     </div>
 
+    <!-- MODAL LỊCH SỬ & DOANH THU -->
+    <div id="history-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative flex flex-col max-h-[90vh]">
+            <button onclick="document.getElementById('history-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-xl">×</button>
+            
+            <h3 class="text-xl font-bold text-gray-800 mb-2">📋 Lịch Sử Đơn Hàng & Doanh Thu</h3>
+            
+            <div class="bg-orange-50 border border-orange-200 p-4 rounded-xl mb-4 flex justify-between items-center">
+                <span class="font-semibold text-gray-700">Tổng doanh thu:</span>
+                <span id="total-revenue" class="text-2xl font-extrabold text-orange-600">0 đ</span>
+            </div>
+
+            <div id="history-list-container" class="space-y-3 overflow-y-auto flex-1 pr-1">
+                <!-- Render lịch sử từ Firebase -->
+            </div>
+
+            <div class="mt-4 pt-3 border-t">
+                <button onclick="document.getElementById('history-modal').classList.add('hidden')" class="w-full bg-gray-200 text-gray-700 py-2.5 rounded-xl font-bold hover:bg-gray-300 transition">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL THANH TOÁN & MÃ QR TỰ ĐỘNG -->
+    <div id="checkout-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeCheckoutModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-xl">×</button>
+            
+            <h3 class="text-xl font-bold text-center text-gray-800 mb-1">Xác Nhận Thanh Toán</h3>
+            <p id="modal-order-type" class="text-center text-sm text-gray-500 mb-3 font-medium">Hình thức: Mang đi</p>
+
+            <div class="flex flex-col items-center justify-center bg-gray-50 p-3 rounded-xl border">
+                <p class="text-xs font-bold text-gray-700 mb-1">QUÉT MÃ ĐỂ CHUYỂN TIỀN</p>
+                <p class="text-xs text-gray-500 mb-2 font-semibold">Techcombank - 3777888234</p>
+                
+                <!-- Hiển thị mã QR sinh tự động kèm số tiền qua API VietQR -->
+                <img id="dynamic-qr-img" src="" alt="QR Thanh Toan" class="w-48 h-48 object-contain rounded-lg border shadow-sm bg-white">
+                
+                <div class="mt-3 text-center">
+                    <span class="text-xs text-gray-500 block">Tổng tiền cần thanh toán:</span>
+                    <span id="modal-total" class="text-2xl font-extrabold text-orange-600">0 đ</span>
+                </div>
+            </div>
+
+            <div class="mt-5 flex space-x-3">
+                <button onclick="closeCheckoutModal()" class="w-1/2 bg-gray-200 text-gray-700 py-2.5 rounded-xl font-bold hover:bg-gray-300 transition">
+                    Đóng
+                </button>
+                <button onclick="completeOrder()" class="w-1/2 bg-green-600 text-white py-2.5 rounded-xl font-bold hover:bg-green-700 transition shadow-md">
+                    Hoàn tất đơn
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Dữ liệu bảng giá mới cập nhật
         const combos = [
             { name: "Bánh mì + trà tắc", mangDi: 30000, taiQuan: 39000 },
             { name: "Bánh mì + cà phê sữa", mangDi: 33000, taiQuan: 41000 },
@@ -121,7 +272,6 @@
         }
 
         function renderMenu(filteredCombos = combos, filteredSingles = singles) {
-            // Render Combo
             const comboContainer = document.getElementById('combo-list');
             if (filteredCombos.length === 0) {
                 comboContainer.innerHTML = `<p class="text-gray-400 text-sm col-span-2 text-center py-4">Không tìm thấy combo phù hợp</p>`;
@@ -129,7 +279,6 @@
                 comboContainer.innerHTML = filteredCombos.map((item) => {
                     const originalIndex = combos.indexOf(item);
                     const selected = isItemSelected('combo', originalIndex);
-                    
                     const cardStyle = selected 
                         ? "bg-green-50 border-green-500 shadow-sm ring-1 ring-green-500" 
                         : "bg-orange-50/40 border-gray-200 hover:shadow-md";
@@ -151,7 +300,6 @@
                 }).join('');
             }
 
-            // Render Món lẻ
             const singleContainer = document.getElementById('single-list');
             if (filteredSingles.length === 0) {
                 singleContainer.innerHTML = `<p class="text-gray-400 text-sm col-span-2 text-center py-4">Không tìm thấy món lẻ phù hợp</p>`;
@@ -159,7 +307,6 @@
                 singleContainer.innerHTML = filteredSingles.map((item) => {
                     const originalIndex = singles.indexOf(item);
                     const selected = isItemSelected('single', originalIndex);
-
                     const cardStyle = selected 
                         ? "bg-green-50 border-green-500 shadow-sm ring-1 ring-green-500" 
                         : "bg-blue-50/40 border-gray-200 hover:shadow-md";
@@ -270,21 +417,50 @@
             document.getElementById('total-amount').innerText = formatMoney(total);
         }
 
-        function checkout() {
+        function openCheckoutModal() {
             if (cart.length === 0) {
                 alert('Vui lòng chọn món trước khi thanh toán!');
                 return;
             }
-            const typeText = currentType === 'mang_di' ? 'Mang đi' : 'Ăn tại quán';
             let total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            
-            alert(`Thanh toán thành công!\nHình thức: ${typeText}\nTổng tiền: ${formatMoney(total)}`);
+            const typeText = currentType === 'mang_di' ? 'Mang đi' : 'Ăn tại quán';
+
+            document.getElementById('modal-order-type').innerText = `Hình thức: ${typeText}`;
+            document.getElementById('modal-total').innerText = formatMoney(total);
+
+            // Tự động tạo QR chuẩn VietQR với tài khoản Techcombank: 3777888234 và số tiền tương ứng
+            const qrUrl = `https://img.vietqr.io/image/TCB-3777888234-compact2.png?amount=${total}&addInfo=Thanh%20toan%20don%20hang&accountName=HO%20KINH%20DOANH%203S%20TEA`;
+            document.getElementById('dynamic-qr-img').src = qrUrl;
+
+            document.getElementById('checkout-modal').classList.remove('hidden');
+            document.getElementById('checkout-modal').classList.add('flex');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkout-modal').classList.remove('flex');
+            document.getElementById('checkout-modal').classList.add('hidden');
+        }
+
+        function completeOrder() {
+            let total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const typeText = currentType === 'mang_di' ? 'Mang đi' : 'Ăn tại quán';
+
+            const orderData = {
+                items: cart,
+                totalAmount: total,
+                orderType: typeText
+            };
+
+            if (window.saveOrderToFirebase) {
+                window.saveOrderToFirebase(orderData);
+            }
+
             cart = [];
             filterMenu();
             renderCart();
+            closeCheckoutModal();
         }
 
-        // Khởi chạy khi tải trang
         renderMenu();
     </script>
 </body>
