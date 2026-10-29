@@ -6,6 +6,18 @@
     <title>Hệ thống Bán hàng - Quán Ăn</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- CSS Animation cho hiệu ứng chọn món -->
+    <style>
+        @keyframes selectPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            50% { transform: scale(1.02); box-shadow: 0 0 15px 4px rgba(34, 197, 94, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+        .animate-select-flash {
+            animation: selectPulse 0.4s ease-in-out;
+        }
+    </style>
+
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -24,16 +36,18 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Lưu đơn hàng và thời gian hoàn thành lên Firebase
         window.saveOrderToFirebase = async function(orderData) {
             try {
                 const querySnapshot = await getDocs(collection(db, "orders"));
                 const orderNumber = querySnapshot.size + 1;
                 
+                const now = new Date();
                 const finalData = {
                     orderName: `Đơn #${orderNumber}`,
                     ...orderData,
-                    completedAt: new Date().toLocaleString('vi-VN')
+                    completedAt: now.toLocaleString('vi-VN'),
+                    timestamp: now.getTime(),
+                    dateString: now.toLocaleDateString('vi-VN')
                 };
 
                 await addDoc(collection(db, "orders"), finalData);
@@ -44,7 +58,6 @@
             }
         };
 
-        // Lấy lịch sử đơn hàng kèm thời gian hoàn thành và tổng doanh thu
         window.loadOrderHistoryFromFirebase = async function() {
             const container = document.getElementById('history-list-container');
             container.innerHTML = `<p class="text-center text-gray-400 py-4">Đang tải dữ liệu từ Firebase...</p>`;
@@ -68,9 +81,26 @@
                     orders.push(doc.data());
                 });
 
-                orders.forEach((order, index) => {
+                const todayStart = new Date();
+                todayStart.setHours(0, 0, 0, 0);
+                const todayStartTime = todayStart.getTime();
+
+                let todayOrders = orders.filter(order => {
+                    if (order.timestamp) {
+                        return order.timestamp >= todayStartTime;
+                    }
+                    return order.dateString === new Date().toLocaleDateString('vi-VN');
+                });
+
+                if (todayOrders.length === 0) {
+                    container.innerHTML = `<p class="text-center text-gray-400 py-8">Chưa có đơn hàng nào trong ngày hôm nay (Đã reset lúc 12h đêm).</p>`;
+                    document.getElementById('total-revenue').innerText = '0 đ';
+                    return;
+                }
+
+                todayOrders.forEach((order, index) => {
                     totalRevenue += order.totalAmount;
-                    let itemsHtml = order.items.map(i => `<span class="text-xs bg-gray-100 px-2 py-0.5 rounded mr-1 mb-1 inline-block">${i.name} (x${i.quantity})</span>`).join('');
+                    let itemsHtml = order.items.map(i => `<span class="text-xs bg-gray-100 px-2 py-0.5 rounded mr-1 mb-1 inline-block">${i.name} (${i.orderType === 'mang_di' ? 'Mang đi' : 'Tại quán'} x${i.quantity})</span>`).join('');
                     
                     htmlContent += `
                         <div class="border rounded-xl p-3 bg-gray-50 space-y-2 text-sm">
@@ -78,7 +108,6 @@
                                 <span class="text-orange-600">${order.orderName || 'Đơn #' + (index+1)}</span>
                                 <span class="text-xs text-blue-600 font-semibold">🕒 ${order.completedAt || 'Chưa cập nhật'}</span>
                             </div>
-                            <p class="text-xs text-gray-600 font-medium">Hình thức: <span class="text-gray-800">${order.orderType}</span></p>
                             <div>
                                 <p class="text-xs text-gray-500 mb-1">Món đã đặt:</p>
                                 <div>${itemsHtml}</div>
@@ -103,37 +132,38 @@
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
 
+    <!-- MODAL ĐĂNG NHẬP ADMIN -->
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-3">
+            <input type="text" id="admin-user" autocomplete="off" class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+            <input type="password" id="admin-pass" autocomplete="new-password" class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+            <p id="login-error" class="text-xs text-red-500 text-center hidden">Tài khoản hoặc mật khẩu không chính xác!</p>
+            <button onclick="handleAdminLogin()" class="w-full bg-orange-600 text-white py-2.5 rounded-xl font-bold hover:bg-orange-700 transition shadow-md">
+                Đăng Nhập
+            </button>
+        </div>
+    </div>
+
     <div class="container mx-auto p-4 max-w-7xl">
         <header class="mb-6 flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-md gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-orange-600">Ứng dụng Bán Hàng</h1>
-                <p class="text-xs text-gray-500">Quản lý bán hàng & Doanh thu trực tuyến</p>
+                <p class="text-xs text-gray-500">Quản lý bán hàng & Doanh thu trực tuyến (Tự động reset 12h đêm)</p>
             </div>
-            <button onclick="window.loadOrderHistoryFromFirebase()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition shadow-md flex items-center space-x-2 text-sm">
-                <span>📊 Lịch sử & Doanh thu</span>
-            </button>
+            <div class="flex items-center space-x-3">
+                <span id="admin-badge" class="text-xs bg-green-100 text-green-700 font-bold px-3 py-1.5 rounded-lg hidden">🛡️ Admin</span>
+                <button onclick="window.loadOrderHistoryFromFirebase()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition shadow-md flex items-center space-x-2 text-sm">
+                    <span>📊 Lịch sử & Doanh thu</span>
+                </button>
+            </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             <!-- CỘT TRÁI: DANH MỤC MÓN ĂN (2/3 màn hình) -->
             <div class="lg:col-span-2 space-y-6">
-                <!-- Ô tìm kiếm và chọn hình thức -->
+                <!-- Ô tìm kiếm -->
                 <div class="bg-white p-4 rounded-xl shadow-md space-y-4">
-                    <div class="flex items-center justify-between">
-                        <span class="font-semibold text-gray-700">Hình thức phục vụ chung:</span>
-                        <div class="flex space-x-4">
-                            <label class="flex items-center space-x-2 cursor-pointer">
-                                <input type="radio" name="orderType" value="mang_di" checked onchange="changeOrderType()" class="text-orange-600 focus:ring-orange-500">
-                                <span class="font-medium">Mang đi</span>
-                            </label>
-                            <label class="flex items-center space-x-2 cursor-pointer">
-                                <input type="radio" name="orderType" value="an_tai_quan" onchange="changeOrderType()" class="text-orange-600 focus:ring-orange-500">
-                                <span class="font-medium">Ăn tại quán</span>
-                            </label>
-                        </div>
-                    </div>
-                    <!-- Ô gõ tên món để tìm kiếm -->
                     <div>
                         <input type="text" id="search-input" oninput="filterMenu()" placeholder="🔍 Gõ tên món để tìm kiếm nhanh..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
                     </div>
@@ -184,10 +214,10 @@
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative flex flex-col max-h-[90vh]">
             <button onclick="document.getElementById('history-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-xl">×</button>
             
-            <h3 class="text-xl font-bold text-gray-800 mb-2">📋 Lịch Sử Đơn Hàng & Doanh Thu</h3>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">📋 Doanh Thu Trong Ngày (Reset 12h đêm)</h3>
             
             <div class="bg-orange-50 border border-orange-200 p-4 rounded-xl mb-4 flex justify-between items-center">
-                <span class="font-semibold text-gray-700">Tổng doanh thu:</span>
+                <span class="font-semibold text-gray-700">Tổng doanh thu hôm nay:</span>
                 <span id="total-revenue" class="text-2xl font-extrabold text-orange-600">0 đ</span>
             </div>
 
@@ -208,8 +238,7 @@
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closeCheckoutModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-xl">×</button>
             
-            <h3 class="text-xl font-bold text-center text-gray-800 mb-1">Xác Nhận Thanh Toán</h3>
-            <p id="modal-order-type" class="text-center text-sm text-gray-500 mb-2 font-medium">Hình thức: Mang đi</p>
+            <h3 class="text-xl font-bold text-center text-gray-800 mb-2">Xác Nhận Thanh Toán</h3>
 
             <div class="flex flex-col items-center justify-center bg-gray-50 p-3 rounded-xl border">
                 <p class="text-xs font-bold text-gray-700 mb-1">QUÉT MÃ ĐỂ CHUYỂN TIỀN</p>
@@ -252,7 +281,10 @@
             { name: "Bún sốt tương đậu đặc biệt + nước ép", mangDi: 45000, taiQuan: 56000 },
             { name: "Bún nước tương + trà tắc", mangDi: 37000, taiQuan: 46000 },
             { name: "Bún nước tương + cà phê sữa", mangDi: 40000, taiQuan: 48000 },
-            { name: "Bún nước tương + nước ép", mangDi: 42000, taiQuan: 51000 }
+            { name: "Bún nước tương + nước ép", mangDi: 42000, taiQuan: 51000 },
+            { name: "Bún thịt nướng + trà tắc", mangDi: 37000, taiQuan: 46000 },
+            { name: "Bún thịt nướng + cà phê sữa", mangDi: 40000, taiQuan: 48000 },
+            { name: "Bún thịt nướng + nước ép", mangDi: 42000, taiQuan: 51000 }
         ];
 
         const singles = [
@@ -265,14 +297,22 @@
         ];
 
         let cart = [];
-        let currentType = 'mang_di';
+
+        function handleAdminLogin() {
+            const user = document.getElementById('admin-user').value.trim();
+            const pass = document.getElementById('admin-pass').value.trim();
+            const errorText = document.getElementById('login-error');
+
+            if (user === 'htchuche27' && pass === 'ht2007@') {
+                document.getElementById('login-modal').classList.add('hidden');
+                document.getElementById('admin-badge').classList.remove('hidden');
+            } else {
+                errorText.classList.remove('hidden');
+            }
+        }
 
         function formatMoney(amount) {
             return amount.toLocaleString('vi-VN') + ' đ';
-        }
-
-        function isItemSelected(category, index) {
-            return cart.some(item => item.category === category && item.index === index);
         }
 
         function renderMenu(filteredCombos = combos, filteredSingles = singles) {
@@ -282,23 +322,21 @@
             } else {
                 comboContainer.innerHTML = filteredCombos.map((item) => {
                     const originalIndex = combos.indexOf(item);
-                    const selected = isItemSelected('combo', originalIndex);
-                    const cardStyle = selected 
-                        ? "bg-green-50 border-green-500 shadow-sm ring-1 ring-green-500" 
-                        : "bg-orange-50/40 border-gray-200 hover:shadow-md";
-
                     return `
-                        <div class="border rounded-lg p-3 flex flex-col justify-between transition duration-200 ${cardStyle}">
+                        <div id="card-combo-${originalIndex}" class="border rounded-lg p-3 flex flex-col justify-between bg-orange-50/40 border-gray-200 hover:shadow-md transition duration-200">
                             <div>
-                                <div class="flex justify-between items-start">
-                                    <h3 class="font-semibold text-gray-800 text-sm mb-1">${item.name}</h3>
-                                    ${selected ? '<span class="text-xs bg-green-600 text-white px-1.5 py-0.5 rounded font-bold">Đã chọn</span>' : ''}
-                                </div>
-                                <p class="text-xs text-gray-500">Giá: ${formatMoney(currentType === 'mang_di' ? item.mangDi : item.taiQuan)}</p>
+                                <h3 class="font-semibold text-gray-800 text-sm mb-1">${item.name}</h3>
+                                <p class="text-xs text-gray-500">Mang đi: <span class="font-bold text-orange-600">${formatMoney(item.mangDi)}</span></p>
+                                <p class="text-xs text-gray-500">Tại quán: <span class="font-bold text-orange-600">${formatMoney(item.taiQuan)}</span></p>
                             </div>
-                            <button onclick="addToCart('combo', ${originalIndex})" class="mt-3 bg-orange-500 text-white text-xs py-1.5 px-3 rounded hover:bg-orange-600 transition font-medium">
-                                + Thêm Combo
-                            </button>
+                            <div class="mt-3 flex space-x-2">
+                                <button onclick="addToCart('combo', ${originalIndex}, 'mang_di')" class="flex-1 bg-orange-500 text-white text-xs py-1.5 px-2 rounded hover:bg-orange-600 transition font-medium">
+                                    + Mang đi
+                                </button>
+                                <button onclick="addToCart('combo', ${originalIndex}, 'an_tai_quan')" class="flex-1 bg-green-600 text-white text-xs py-1.5 px-2 rounded hover:bg-green-700 transition font-medium">
+                                    + Tại quán
+                                </button>
+                            </div>
                         </div>
                     `;
                 }).join('');
@@ -310,23 +348,21 @@
             } else {
                 singleContainer.innerHTML = filteredSingles.map((item) => {
                     const originalIndex = singles.indexOf(item);
-                    const selected = isItemSelected('single', originalIndex);
-                    const cardStyle = selected 
-                        ? "bg-green-50 border-green-500 shadow-sm ring-1 ring-green-500" 
-                        : "bg-blue-50/40 border-gray-200 hover:shadow-md";
-
                     return `
-                        <div class="border rounded-lg p-3 flex flex-col justify-between transition duration-200 ${cardStyle}">
+                        <div id="card-single-${originalIndex}" class="border rounded-lg p-3 flex flex-col justify-between bg-blue-50/40 border-gray-200 hover:shadow-md transition duration-200">
                             <div>
-                                <div class="flex justify-between items-start">
-                                    <h3 class="font-semibold text-gray-800 text-sm mb-1">${item.name}</h3>
-                                    ${selected ? '<span class="text-xs bg-green-600 text-white px-1.5 py-0.5 rounded font-bold">Đã chọn</span>' : ''}
-                                </div>
-                                <p class="text-xs text-gray-500">Giá: ${formatMoney(currentType === 'mang_di' ? item.mangDi : item.taiQuan)}</p>
+                                <h3 class="font-semibold text-gray-800 text-sm mb-1">${item.name}</h3>
+                                <p class="text-xs text-gray-500">Mang đi: <span class="font-bold text-blue-600">${formatMoney(item.mangDi)}</span></p>
+                                <p class="text-xs text-gray-500">Tại quán: <span class="font-bold text-blue-600">${formatMoney(item.taiQuan)}</span></p>
                             </div>
-                            <button onclick="addToCart('single', ${originalIndex})" class="mt-3 bg-blue-600 text-white text-xs py-1.5 px-3 rounded hover:bg-blue-700 transition font-medium">
-                                + Thêm Lẻ
-                            </button>
+                            <div class="mt-3 flex space-x-2">
+                                <button onclick="addToCart('single', ${originalIndex}, 'mang_di')" class="flex-1 bg-blue-600 text-white text-xs py-1.5 px-2 rounded hover:bg-blue-700 transition font-medium">
+                                    + Mang đi
+                                </button>
+                                <button onclick="addToCart('single', ${originalIndex}, 'an_tai_quan')" class="flex-1 bg-green-600 text-white text-xs py-1.5 px-2 rounded hover:bg-green-700 transition font-medium">
+                                    + Tại quán
+                                </button>
+                            </div>
                         </div>
                     `;
                 }).join('');
@@ -340,27 +376,11 @@
             renderMenu(matchedCombos, matchedSingles);
         }
 
-        function changeOrderType() {
-            const radios = document.getElementsByName('orderType');
-            for (const radio of radios) {
-                if (radio.checked) {
-                    currentType = radio.value;
-                    break;
-                }
-            }
-            cart.forEach(item => {
-                const source = item.category === 'combo' ? combos[item.index] : singles[item.index];
-                item.price = currentType === 'mang_di' ? source.mangDi : source.taiQuan;
-            });
-            filterMenu();
-            renderCart();
-        }
-
-        function addToCart(category, index) {
+        function addToCart(category, index, orderType) {
             const source = category === 'combo' ? combos[index] : singles[index];
-            const price = currentType === 'mang_di' ? source.mangDi : source.taiQuan;
+            const price = orderType === 'mang_di' ? source.mangDi : source.taiQuan;
             
-            const existingItem = cart.find(i => i.category === category && i.index === index);
+            const existingItem = cart.find(i => i.category === category && i.index === index && i.orderType === orderType);
             if (existingItem) {
                 existingItem.quantity += 1;
             } else {
@@ -369,10 +389,19 @@
                     index: index,
                     name: source.name,
                     price: price,
+                    orderType: orderType,
                     quantity: 1
                 });
             }
-            filterMenu();
+
+            // Kích hoạt hiệu ứng Animation nháy sáng khung món ăn vừa được chọn
+            const cardEl = document.getElementById(`card-${category}-${index}`);
+            if (cardEl) {
+                cardEl.classList.remove('animate-select-flash');
+                void cardEl.offsetWidth; // Trigger reflow để chạy lại animation nếu bấm liên tục
+                cardEl.classList.add('animate-select-flash');
+            }
+
             renderCart();
         }
 
@@ -381,13 +410,11 @@
             if (cart[cartIndex].quantity <= 0) {
                 cart.splice(cartIndex, 1);
             }
-            filterMenu();
             renderCart();
         }
 
         function clearCart() {
             cart = [];
-            filterMenu();
             renderCart();
         }
 
@@ -403,10 +430,16 @@
             container.innerHTML = cart.map((item, idx) => {
                 const itemTotal = item.price * item.quantity;
                 total += itemTotal;
+                const typeLabel = item.orderType === 'mang_di' ? 'Mang đi' : 'Tại quán';
+                const badgeColor = item.orderType === 'mang_di' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700';
+
                 return `
                     <div class="flex justify-between items-center bg-gray-50 p-2.5 rounded-lg border text-sm">
                         <div class="flex-1 pr-2">
-                            <p class="font-medium text-gray-800">${item.name}</p>
+                            <div class="flex items-center space-x-1.5 mb-0.5">
+                                <p class="font-medium text-gray-800">${item.name}</p>
+                                <span class="text-[10px] px-1.5 py-0.5 rounded font-bold ${badgeColor}">${typeLabel}</span>
+                            </div>
                             <p class="text-xs text-gray-500">${formatMoney(item.price)} x ${item.quantity}</p>
                         </div>
                         <div class="flex items-center space-x-2">
@@ -427,19 +460,15 @@
                 return;
             }
             let total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const typeText = currentType === 'mang_di' ? 'Mang đi' : 'Ăn tại quán';
 
-            // Tạo chuỗi nội dung chuyển khoản tự động từ danh sách món trong giỏ hàng
-            let transferContent = cart.map(i => `${i.name} (x${i.quantity})`).join(', ');
+            let transferContent = cart.map(i => `${i.name} (${i.orderType === 'mang_di' ? 'Mang đi' : 'Tại quán'} x${i.quantity})`).join(', ');
             if (transferContent.length > 50) {
-                transferContent = transferContent.substring(0, 47) + '...'; // Giới hạn ký tự nội dung chuyển khoản cho gọn
+                transferContent = transferContent.substring(0, 47) + '...';
             }
 
-            document.getElementById('modal-order-type').innerText = `Hình thức: ${typeText}`;
             document.getElementById('modal-total').innerText = formatMoney(total);
             document.getElementById('modal-content').innerText = transferContent;
 
-            // Tạo mã QR VietQR tự động kèm số tiền và nội dung chuyển khoản
             const encodedMemo = encodeURIComponent(transferContent);
             const qrUrl = `https://img.vietqr.io/image/TCB-3777888234-compact2.png?amount=${total}&addInfo=${encodedMemo}&accountName=HO%20KINH%20DOANH%203S%20TEA`;
             document.getElementById('dynamic-qr-img').src = qrUrl;
@@ -455,12 +484,10 @@
 
         function completeOrder() {
             let total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const typeText = currentType === 'mang_di' ? 'Mang đi' : 'Ăn tại quán';
 
             const orderData = {
                 items: cart,
-                totalAmount: total,
-                orderType: typeText
+                totalAmount: total
             };
 
             if (window.saveOrderToFirebase) {
@@ -468,7 +495,7 @@
             }
 
             cart = [];
-            filterMenu();
+            renderMenu();
             renderCart();
             closeCheckoutModal();
         }
