@@ -93,10 +93,16 @@
         <!-- CỘT CHAT CHUNG TOÀN SERVER & GÓP Ý ADMIN (1 Cột) -->
         <div class="glass-card p-5 rounded-2xl flex flex-col h-[620px]">
             <h2 class="text-xl font-bold mb-3 flex items-center justify-between">
-                <span><i class="fa-solid fa-comments text-red-500"></i> Chat & Góp Ý</span>
+                <span><i class="fa-solid fa-comments text-red-500"></i> Chat Toàn Server</span>
                 <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">● Realtime</span>
             </h2>
             
+            <!-- Hiển thị tên người dùng hiện tại & nút đổi tên -->
+            <div id="user-info-bar" class="hidden bg-slate-900/80 border border-slate-700 px-3 py-1.5 rounded-xl mb-3 flex justify-between items-center text-xs">
+                <span>Đang chat với tên: <strong id="current-username" class="text-red-400"></strong></span>
+                <button onclick="changeUsername()" class="text-slate-400 hover:text-white underline">Đổi tên</button>
+            </div>
+
             <!-- Khung hiển thị tin nhắn -->
             <div id="chat-messages" class="flex-1 overflow-y-auto space-y-3 pr-1 mb-3">
                 <p class="text-slate-500 text-center text-sm italic my-auto">Đang kết nối cơ sở dữ liệu...</p>
@@ -104,9 +110,6 @@
 
             <!-- Form gửi tin nhắn -->
             <form id="chat-form" class="space-y-2.5">
-                <input type="text" id="chat-name" placeholder="Tên nhân vật Minecraft..." required maxlength="20"
-                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-red-500 text-white">
-                
                 <select id="chat-type" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-red-500 text-white">
                     <option value="Trò chuyện">💬 Trò chuyện chung</option>
                     <option value="Góp ý">💡 Góp ý tính năng</option>
@@ -124,12 +127,30 @@
 
     </main>
 
+    <!-- MODAL YÊU CẦU ĐẶT TÊN TRƯỚC KHI CHAT -->
+    <div id="name-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-card max-w-md w-full p-6 rounded-2xl border border-red-500/30 shadow-2xl text-center">
+            <div class="text-red-500 text-3xl mb-3"><i class="fa-solid fa-user-shield"></i></div>
+            <h3 class="text-2xl font-bold mb-2">Đăng Nhập Tên Nhân Vật</h3>
+            <p class="text-slate-400 text-sm mb-6">Vui lòng nhập tên Minecraft của bạn để bắt đầu trò chuyện và góp ý cùng cộng đồng server mcwdlk.fun!</p>
+            
+            <form id="name-form" class="space-y-4">
+                <input type="text" id="modal-name-input" placeholder="Nhập tên nhân vật (Ví dụ: Steve, Alex)..." required maxlength="20"
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-500 text-white text-center font-bold">
+                
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-500 font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-red-600/30 text-white">
+                    Vào Chat Ngay <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- FOOTER -->
     <footer class="text-center py-6 border-t border-slate-800 text-slate-500 text-sm">
         <p>© 2026 <span class="text-white font-bold">mcwdlk.fun</span> Lifesteal SMP. All rights reserved.</p>
     </footer>
 
-    <!-- SCRIPT TÍCH HỢP FIREBASE REALTIME DATABASE -->
+    <!-- SCRIPT TÍCH HỢP FIREBASE & XỬ LÝ TÊN -->
     <script>
         // Cấu hình Firebase chính xác từ dự án của bạn
         const firebaseConfig = {
@@ -143,28 +164,77 @@
         };
 
         // Khởi tạo Firebase & Analytics
-        const app = firebase.initializeApp(firebaseConfig);
-        const analytics = firebase.analytics();
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
         const db = firebase.database();
         
-        // Tham chiếu đến nhánh lưu trữ chat chung trên Realtime Database
+        // Tham chiếu đến nhánh chat chung trên Realtime Database
         const chatRef = db.ref('server_global_chat');
 
+        // Quản lý tên người dùng qua localStorage
+        let currentUsername = localStorage.getItem('mc_username');
+        
+        const nameModal = document.getElementById('name-modal');
+        const userInfoBar = document.getElementById('user-info-bar');
+        const currentUsernameSpan = document.getElementById('current-username');
+        const nameForm = document.getElementById('name-form');
+        const modalNameInput = document.getElementById('modal-name-input');
+        
         const chatForm = document.getElementById('chat-form');
         const chatMessages = document.getElementById('chat-messages');
+
+        // Kiểm tra xem đã có tên chưa
+        function checkUsername() {
+            if (!currentUsername || currentUsername.trim() === '') {
+                nameModal.classList.remove('hidden');
+                userInfoBar.classList.add('hidden');
+            } else {
+                nameModal.classList.add('hidden');
+                userInfoBar.classList.remove('hidden');
+                currentUsernameSpan.textContent = currentUsername;
+            }
+        }
+
+        // Xử lý khi người chơi submit tên ở Modal
+        nameForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const enteredName = modalNameInput.value.trim();
+            if(enteredName) {
+                localStorage.setItem('mc_username', enteredName);
+                currentUsername = enteredName;
+                checkUsername();
+            }
+        });
+
+        // Hàm đổi tên
+        function changeUsername() {
+            localStorage.removeItem('mc_username');
+            currentUsername = null;
+            modalNameInput.value = '';
+            checkUsername();
+        }
+
+        // Chạy kiểm tra tên khi vừa vào web
+        checkUsername();
 
         // Xử lý gửi tin nhắn
         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const name = document.getElementById('chat-name').value.trim();
+            
+            // Nếu chưa có tên thì bắt buộc hiện modal nhập tên
+            if (!currentUsername) {
+                checkUsername();
+                return;
+            }
+
             const type = document.getElementById('chat-type').value;
             const text = document.getElementById('chat-text').value.trim();
 
-            if(!name || !text) return;
+            if(!text) return;
 
             // Đẩy dữ liệu lên Firebase Database
             chatRef.push({
-                name: name,
+                name: currentUsername,
                 type: type,
                 text: text,
                 time: firebase.database.ServerValue.TIMESTAMP
