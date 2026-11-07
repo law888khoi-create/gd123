@@ -3,508 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ thống Bán hàng - Quán Ăn</title>
+    <title>MCWDLK.FUN - Lifesteal SMP Chính Thức</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- CSS Animation cho hiệu ứng chọn món -->
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        @keyframes selectPulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
-            50% { transform: scale(1.02); box-shadow: 0 0 15px 4px rgba(34, 197, 94, 0.5); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .animate-select-flash {
-            animation: selectPulse 0.4s ease-in-out;
+        .glow-text {
+            text-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
-
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = { 
-            apiKey: "AIzaSyAZ6OXns0HiCpkJzRc3bEwEFb1aOXy7MBs", 
-            authDomain: "khoideptrai-77c07.firebaseapp.com", 
-            projectId: "khoideptrai-77c07", 
-            storageBucket: "khoideptrai-77c07.firebasestorage.app", 
-            messagingSenderId: "213193338682", 
-            appId: "1:213193338682:web:9bff583b81835683bf2a03", 
-            measurementId: "G-Z27FEVQ92D" 
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        window.saveOrderToFirebase = async function(orderData) {
-            try {
-                const querySnapshot = await getDocs(collection(db, "orders"));
-                const orderNumber = querySnapshot.size + 1;
-                
-                const now = new Date();
-                const finalData = {
-                    orderName: `Đơn #${orderNumber}`,
-                    ...orderData,
-                    completedAt: now.toLocaleString('vi-VN'),
-                    timestamp: now.getTime(),
-                    dateString: now.toLocaleDateString('vi-VN')
-                };
-
-                await addDoc(collection(db, "orders"), finalData);
-                alert(`Thanh toán thành công! Đã lưu "${finalData.orderName}" vào lúc ${finalData.completedAt}`);
-            } catch (e) {
-                console.error("Lỗi khi lưu Firebase: ", e);
-                alert("Lưu đơn hàng thất bại, vui lòng kiểm tra lại kết nối.");
-            }
-        };
-
-        window.loadOrderHistoryFromFirebase = async function() {
-            const container = document.getElementById('history-list-container');
-            container.innerHTML = `<p class="text-center text-gray-400 py-4">Đang tải dữ liệu từ Firebase...</p>`;
-            
-            document.getElementById('history-modal').classList.remove('hidden');
-            document.getElementById('history-modal').classList.add('flex');
-
-            try {
-                const querySnapshot = await getDocs(collection(db, "orders"));
-                let totalRevenue = 0;
-                let htmlContent = '';
-
-                if (querySnapshot.empty) {
-                    container.innerHTML = `<p class="text-center text-gray-400 py-8">Chưa có đơn hàng nào được lưu.</p>`;
-                    document.getElementById('total-revenue').innerText = '0 đ';
-                    return;
-                }
-
-                let orders = [];
-                querySnapshot.forEach((doc) => {
-                    orders.push(doc.data());
-                });
-
-                const todayStart = new Date();
-                todayStart.setHours(0, 0, 0, 0);
-                const todayStartTime = todayStart.getTime();
-
-                let todayOrders = orders.filter(order => {
-                    if (order.timestamp) {
-                        return order.timestamp >= todayStartTime;
-                    }
-                    return order.dateString === new Date().toLocaleDateString('vi-VN');
-                });
-
-                if (todayOrders.length === 0) {
-                    container.innerHTML = `<p class="text-center text-gray-400 py-8">Chưa có đơn hàng nào trong ngày hôm nay (Đã reset lúc 12h đêm).</p>`;
-                    document.getElementById('total-revenue').innerText = '0 đ';
-                    return;
-                }
-
-                todayOrders.forEach((order, index) => {
-                    totalRevenue += order.totalAmount;
-                    let itemsHtml = order.items.map(i => `<span class="text-xs bg-gray-100 px-2 py-0.5 rounded mr-1 mb-1 inline-block">${i.name} (${i.orderType === 'mang_di' ? 'Mang đi' : 'Tại quán'} x${i.quantity})</span>`).join('');
-                    
-                    htmlContent += `
-                        <div class="border rounded-xl p-3 bg-gray-50 space-y-2 text-sm">
-                            <div class="flex justify-between items-center font-bold text-gray-800">
-                                <span class="text-orange-600">${order.orderName || 'Đơn #' + (index+1)}</span>
-                                <span class="text-xs text-blue-600 font-semibold">🕒 ${order.completedAt || 'Chưa cập nhật'}</span>
-                            </div>
-                            <div>
-                                <p class="text-xs text-gray-500 mb-1">Món đã đặt:</p>
-                                <div>${itemsHtml}</div>
-                            </div>
-                            <div class="flex justify-between items-center pt-2 border-t font-bold">
-                                <span class="text-gray-700">Thành tiền:</span>
-                                <span class="text-orange-600">${order.totalAmount.toLocaleString('vi-VN')} đ</span>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                container.innerHTML = htmlContent;
-                document.getElementById('total-revenue').innerText = totalRevenue.toLocaleString('vi-VN') + ' đ';
-
-            } catch (e) {
-                console.error("Lỗi tải lịch sử: ", e);
-                container.innerHTML = `<p class="text-center text-red-500 py-4">Lỗi khi tải dữ liệu từ Firebase.</p>`;
-            }
-        };
-    </script>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans flex flex-col min-h-screen">
+<body class="min-h-screen flex flex-col justify-between">
 
-    <!-- MODAL ĐĂNG NHẬP ADMIN -->
-    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-3">
-            <input type="text" id="admin-user" placeholder="Mời bạn nhập tài khoản" autocomplete="off" class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
-            <input type="password" id="admin-pass" placeholder="Mời bạn nhập mật khẩu" autocomplete="new-password" class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
-            <p id="login-error" class="text-xs text-red-500 text-center hidden">Tài khoản hoặc mật khẩu không chính xác!</p>
-            <button onclick="handleAdminLogin()" class="w-full bg-orange-600 text-white py-2.5 rounded-xl font-bold hover:bg-orange-700 transition shadow-md">
-                Đăng Nhập
-            </button>
-        </div>
-    </div>
-
-    <div class="container mx-auto p-4 max-w-7xl flex-1">
-        <header class="mb-6 flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-md gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-orange-600">Ứng dụng Bán Hàng</h1>
-                <p class="text-xs text-gray-500">Quản lý bán hàng & Doanh thu trực tuyến (Tự động reset 12h đêm)</p>
-            </div>
-            <div class="flex items-center space-x-3">
-                <span id="admin-badge" class="text-xs bg-green-100 text-green-700 font-bold px-3 py-1.5 rounded-lg hidden">🛡️ Admin</span>
-                <button onclick="window.loadOrderHistoryFromFirebase()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition shadow-md flex items-center space-x-2 text-sm">
-                    <span>📊 Lịch sử & Doanh thu</span>
-                </button>
-            </div>
-        </header>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- HEADER / HERO SECTION -->
+    <header class="py-12 px-4 text-center border-b border-slate-800 bg-slate-900/50">
+        <div class="max-w-4xl mx-auto">
+            <span class="bg-red-500/10 text-red-500 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-red-500/20">🔥 Lifesteal SMP Season Mới</span>
+            <h1 class="text-5xl md:text-6xl font-black mt-4 mb-2 tracking-wide glow-text text-red-500">MCWDLK.FUN</h1>
+            <p class="text-slate-400 text-lg mb-6">Server Minecraft Lifesteal đỉnh cao với hệ thống ngọc cày cuốc, cứ điểm kịch tính và combat mãn nhãn!</p>
             
-            <!-- CỘT TRÁI: DANH MỤC MÓN ĂN (2/3 màn hình) -->
-            <div class="lg:col-span-2 space-y-6">
-                <!-- Ô tìm kiếm -->
-                <div class="bg-white p-4 rounded-xl shadow-md space-y-4">
-                    <div>
-                        <input type="text" id="search-input" oninput="filterMenu()" placeholder="🔍 Gõ tên món để tìm kiếm nhanh..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
-                    </div>
-                </div>
-
-                <!-- Danh sách Combo -->
-                <div class="bg-white p-5 rounded-xl shadow-md">
-                    <h2 class="text-xl font-bold text-orange-500 mb-4 border-b pb-2">📦 Danh sách Combo</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="combo-list"></div>
-                </div>
-
-                <!-- Danh sách Món lẻ -->
-                <div class="bg-white p-5 rounded-xl shadow-md">
-                    <h2 class="text-xl font-bold text-blue-600 mb-4 border-b pb-2">🍜 Danh sách Món Lẻ</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="single-list"></div>
-                </div>
+            <div class="inline-flex items-center gap-3 bg-slate-800 border border-slate-700 px-6 py-3 rounded-xl shadow-lg cursor-pointer hover:border-red-500 transition" onclick="navigator.clipboard.writeText('mcwdlk.fun'); alert('Đã sao chép IP: mcwdlk.fun');">
+                <i class="fa-solid fa-server text-red-500"></i>
+                <span class="font-mono font-bold text-xl text-white">mcwdlk.fun</span>
+                <span class="text-xs bg-red-600 text-white px-2 py-1 rounded ml-2">Click để copy IP</span>
             </div>
-
-            <!-- CỘT PHẢI: HÓA ĐƠN / BILL (1/3 màn hình) -->
-            <div class="bg-white p-5 rounded-xl shadow-md flex flex-col justify-between h-fit sticky top-4">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2 flex justify-between items-center">
-                        <span>🛒 Hóa đơn hiện tại</span>
-                        <button onclick="clearCart()" class="text-xs text-red-500 hover:underline">Xóa tất cả</button>
-                    </h2>
-
-                    <div id="cart-items" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-                        <p class="text-gray-400 text-center py-8">Chưa có món nào được chọn</p>
-                    </div>
-                </div>
-
-                <div class="border-t mt-6 pt-4 space-y-3">
-                    <div class="flex justify-between text-lg font-bold">
-                        <span>Tổng tiền:</span>
-                        <span id="total-amount" class="text-orange-600">0 đ</span>
-                    </div>
-                    <button onclick="openCheckoutModal()" class="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition shadow-lg">
-                        In / Thanh Toán (QR)
-                    </button>
-                </div>
-            </div>
-
         </div>
-    </div>
+    </header>
 
-    <!-- DÒNG THÔNG TIN LIÊN HỆ Ở DƯỚI CÙNG -->
-    <footer class="text-center py-4 text-xs text-gray-500 border-t bg-white mt-8">
-        Mọi thắc mắc liên hệ <a href="mailto:khoieryk07a@gmail.com" class="text-blue-600 hover:underline">khoieryk07a@gmail.com</a> hoặc <a href="mailto:thuongdelwyn@gmail.com" class="text-blue-600 hover:underline">thuongdelwyn@gmail.com</a>
+    <!-- MAIN CONTENT -->
+    <main class="max-w-6xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+        
+        <!-- CỘT GIỚI THIỆU TÍNH NĂNG SERVER (2 Cột) -->
+        <div class="md:col-span-2 space-y-6">
+            <h2 class="text-2xl font-bold border-l-4 border-red-500 pl-3">Tính Năng Nổi Bật</h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="glass-card p-5 rounded-2xl">
+                    <div class="text-red-500 text-2xl mb-3"><i class="fa-solid fa-gem"></i></div>
+                    <h3 class="font-bold text-lg mb-1">Hệ Thống Ngọc 7 Cấp</h3>
+                    <p class="text-slate-400 text-sm">Cày cuốc chặt cây, đào mỏ, săn quái để nhận ngọc và nâng cấp tối đa cấp 7, khảm 4 viên buff chỉ số cực mạnh.</p>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl">
+                    <div class="text-red-500 text-2xl mb-3"><i class="fa-solid fa-fire"></i></div>
+                    <h3 class="font-bold text-lg mb-1">Sự Kiện Điểm Chiến</h3>
+                    <p class="text-slate-400 text-sm">King of the Hill tự động xuất hiện mỗi 30 phút, tranh đoạt tọa độ để nhận tim thưởng và táo vàng toàn server.</p>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl">
+                    <div class="text-red-500 text-2xl mb-3"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h3 class="font-bold text-lg mb-1">Cân Bằng LifestealZ</h3>
+                    <p class="text-slate-400 text-sm">Cơ chế mất tim khi chết và cược tim 1vs1 (`/thachdau`) rực lửa, giải quyết ân oán giang hồ trong chớp mắt.</p>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl">
+                    <div class="text-red-500 text-2xl mb-3"><i class="fa-solid fa-gift"></i></div>
+                    <h3 class="font-bold text-lg mb-1">Điểm Danh & Nhiệm Vụ</h3>
+                    <p class="text-slate-400 text-sm">Hệ thống điểm danh 30 ngày nhận quà khủng và giao diện hướng dẫn trực quan qua lệnh `/huongdan`.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CỘT GÓP Ý & TRÒ CHUYỆN TRỰC TIẾP (1 Cột) -->
+        <div class="glass-card p-6 rounded-2xl flex flex-col h-[600px]">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-comments text-red-500"></i> Góp Ý & Trò Chuyện
+            </h2>
+            
+            <!-- Khung chứa tin nhắn -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto space-y-3 pr-2 mb-4 scrollbar-thin">
+                <p class="text-slate-500 text-center text-sm italic my-auto">Đang tải tin nhắn...</p>
+            </div>
+
+            <!-- Form gửi tin nhắn -->
+            <form id="chat-form" class="space-y-3">
+                <input type="text" id="chat-name" placeholder="Tên nhân vật Minecraft..." required
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-red-500">
+                
+                <select id="chat-type" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-red-500">
+                    <option value="Góp ý">💡 Góp ý tính năng</option>
+                    <option value="Báo lỗi">🐛 Báo lỗi / Bug</option>
+                    <option value="Trò chuyện">💬 Trò chuyện chung</option>
+                </select>
+
+                <textarea id="chat-text" placeholder="Nhập nội dung góp ý hoặc trò chuyện với admin..." rows="2" required
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-red-500 resize-none"></textarea>
+                
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-500 font-bold py-2 rounded-xl text-sm transition shadow-lg shadow-red-600/30">
+                    Gửi Góp Ý <i class="fa-solid fa-paper-plane ml-1"></i>
+                </button>
+            </form>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-6 border-t border-slate-800 text-slate-500 text-sm">
+        <p>© 2026 <span class="text-white font-bold">mcwdlk.fun</span> Lifesteal SMP. All rights reserved.</p>
     </footer>
 
-    <!-- MODAL LỊCH SỬ & DOANH THU -->
-    <div id="history-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative flex flex-col max-h-[90vh]">
-            <button onclick="document.getElementById('history-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-xl">×</button>
-            
-            <h3 class="text-xl font-bold text-gray-800 mb-2">📋 Doanh Thu Trong Ngày (Reset 12h đêm)</h3>
-            
-            <div class="bg-orange-50 border border-orange-200 p-4 rounded-xl mb-4 flex justify-between items-center">
-                <span class="font-semibold text-gray-700">Tổng doanh thu hôm nay:</span>
-                <span id="total-revenue" class="text-2xl font-extrabold text-orange-600">0 đ</span>
-            </div>
-
-            <div id="history-list-container" class="space-y-3 overflow-y-auto flex-1 pr-1">
-                <!-- Render lịch sử từ Firebase -->
-            </div>
-
-            <div class="mt-4 pt-3 border-t">
-                <button onclick="document.getElementById('history-modal').classList.add('hidden')" class="w-full bg-gray-200 text-gray-700 py-2.5 rounded-xl font-bold hover:bg-gray-300 transition">
-                    Đóng
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL THANH TOÁN & MÃ QR TỰ ĐỘNG -->
-    <div id="checkout-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
-            <button onclick="closeCheckoutModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-xl">×</button>
-            
-            <h3 class="text-xl font-bold text-center text-gray-800 mb-2">Xác Nhận Thanh Toán</h3>
-
-            <div class="flex flex-col items-center justify-center bg-gray-50 p-3 rounded-xl border">
-                <p class="text-xs font-bold text-gray-700 mb-1">QUÉT MÃ ĐỂ CHUYỂN TIỀN</p>
-                <p class="text-xs text-gray-500 mb-2 font-semibold">Techcombank - 3777888234</p>
-                
-                <img id="dynamic-qr-img" src="" alt="QR Thanh Toan" class="w-44 h-44 object-contain rounded-lg border shadow-sm bg-white">
-                
-                <div class="mt-2 text-center">
-                    <span class="text-xs text-gray-500 block">Nội dung chuyển khoản:</span>
-                    <span id="modal-content" class="text-xs font-bold text-blue-600 block bg-blue-50 px-2 py-1 rounded mt-0.5">...</span>
-                </div>
-
-                <div class="mt-3 text-center border-t pt-2 w-full">
-                    <span class="text-xs text-gray-500 block">Tổng tiền cần thanh toán:</span>
-                    <span id="modal-total" class="text-2xl font-extrabold text-orange-600">0 đ</span>
-                </div>
-            </div>
-
-            <div class="mt-4 flex space-x-3">
-                <button onclick="closeCheckoutModal()" class="w-1/2 bg-gray-200 text-gray-700 py-2.5 rounded-xl font-bold hover:bg-gray-300 transition">
-                    Đóng
-                </button>
-                <button onclick="completeOrder()" class="w-1/2 bg-green-600 text-white py-2.5 rounded-xl font-bold hover:bg-green-700 transition shadow-md">
-                    Hoàn tất đơn
-                </button>
-            </div>
-        </div>
-    </div>
-
+    <!-- SCRIPT TÍCH HỢP FIREBASE REALTIME CHAT -->
     <script>
-        const combos = [
-            { name: "Bánh mì + trà tắc", mangDi: 30000, taiQuan: 39000 },
-            { name: "Bánh mì + cà phê sữa", mangDi: 33000, taiQuan: 41000 },
-            { name: "Bánh mì + nước ép", mangDi: 35000, taiQuan: 44000 },
-            { name: "Bún sốt tương đậu + trà tắc", mangDi: 35000, taiQuan: 44000 },
-            { name: "Bún sốt tương đậu + cà phê sữa", mangDi: 38000, taiQuan: 46000 },
-            { name: "Bún sốt tương đậu + nước ép", mangDi: 40000, taiQuan: 49000 },
-            { name: "Bún sốt tương đậu đặc biệt + trà tắc", mangDi: 40000, taiQuan: 49000 },
-            { name: "Bún sốt tương đậu đặc biệt + cà phê sữa", mangDi: 43000, taiQuan: 51000 },
-            { name: "Bún sốt tương đậu đặc biệt + nước ép", mangDi: 45000, taiQuan: 56000 },
-            { name: "Bún nước tương + trà tắc", mangDi: 37000, taiQuan: 46000 },
-            { name: "Bún nước tương + cà phê sữa", mangDi: 40000, taiQuan: 48000 },
-            { name: "Bún nước tương + nước ép", mangDi: 42000, taiQuan: 51000 },
-            { name: "Bún thịt nướng + trà tắc", mangDi: 37000, taiQuan: 46000 },
-            { name: "Bún thịt nướng + cà phê sữa", mangDi: 40000, taiQuan: 48000 },
-            { name: "Bún thịt nướng + nước ép", mangDi: 42000, taiQuan: 51000 }
-        ];
+        // Cấu hình Firebase Realtime Database của bạn
+        const firebaseConfig = {
+            databaseURL: "https://khoideptrai-77c07-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const chatRef = db.ref('server_feedback');
 
-        const singles = [
-            { name: "Bánh mì", mangDi: 20000, taiQuan: 20000 },
-            { name: "Bún thịt nướng", mangDi: 27000, taiQuan: 27000 },
-            { name: "Bún sốt tương đậu", mangDi: 25000, taiQuan: 25000 },
-            { name: "Bún sốt tương đậu đặc biệt", mangDi: 30000, taiQuan: 30000 },
-            { name: "Bún nước tương", mangDi: 27000, taiQuan: 27000 },
-            { name: "Bánh mì ốp la", mangDi: 17000, taiQuan: 17000 }
-        ];
+        const chatForm = document.getElementById('chat-form');
+        const chatMessages = document.getElementById('chat-messages');
 
-        let cart = [];
+        // Gửi tin nhắn lên Firebase
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('chat-name').value.trim();
+            const type = document.getElementById('chat-type').value;
+            const text = document.getElementById('chat-text').value.trim();
 
-        function handleAdminLogin() {
-            const user = document.getElementById('admin-user').value.trim();
-            const pass = document.getElementById('admin-pass').value.trim();
-            const errorText = document.getElementById('login-error');
+            if(!name || !text) return;
 
-            if (user === '3steaxinchao' && pass === '3steacamon99') {
-                document.getElementById('login-modal').classList.add('hidden');
-                document.getElementById('admin-badge').classList.remove('hidden');
-            } else {
-                errorText.classList.remove('hidden');
-            }
-        }
+            chatRef.push({
+                name: name,
+                type: type,
+                text: text,
+                time: Date.now()
+            });
 
-        function formatMoney(amount) {
-            return amount.toLocaleString('vi-VN') + ' đ';
-        }
+            document.getElementById('chat-text').value = '';
+        });
 
-        function renderMenu(filteredCombos = combos, filteredSingles = singles) {
-            const comboContainer = document.getElementById('combo-list');
-            if (filteredCombos.length === 0) {
-                comboContainer.innerHTML = `<p class="text-gray-400 text-sm col-span-2 text-center py-4">Không tìm thấy combo phù hợp</p>`;
-            } else {
-                comboContainer.innerHTML = filteredCombos.map((item) => {
-                    const originalIndex = combos.indexOf(item);
-                    return `
-                        <div id="card-combo-${originalIndex}" class="border rounded-lg p-3 flex flex-col justify-between bg-orange-50/40 border-gray-200 hover:shadow-md transition duration-200">
-                            <div>
-                                <h3 class="font-semibold text-gray-800 text-sm mb-1">${item.name}</h3>
-                                <p class="text-xs text-gray-500">Mang đi: <span class="font-bold text-orange-600">${formatMoney(item.mangDi)}</span></p>
-                                <p class="text-xs text-gray-500">Tại quán: <span class="font-bold text-orange-600">${formatMoney(item.taiQuan)}</span></p>
-                            </div>
-                            <div class="mt-3 flex space-x-2">
-                                <button onclick="addToCart('combo', ${originalIndex}, 'mang_di')" class="flex-1 bg-orange-500 text-white text-xs py-1.5 px-2 rounded hover:bg-orange-600 transition font-medium">
-                                    + Mang đi
-                                </button>
-                                <button onclick="addToCart('combo', ${originalIndex}, 'an_tai_quan')" class="flex-1 bg-green-600 text-white text-xs py-1.5 px-2 rounded hover:bg-green-700 transition font-medium">
-                                    + Tại quán
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-
-            const singleContainer = document.getElementById('single-list');
-            if (filteredSingles.length === 0) {
-                singleContainer.innerHTML = `<p class="text-gray-400 text-sm col-span-2 text-center py-4">Không tìm thấy món lẻ phù hợp</p>`;
-            } else {
-                singleContainer.innerHTML = filteredSingles.map((item) => {
-                    const originalIndex = singles.indexOf(item);
-                    return `
-                        <div id="card-single-${originalIndex}" class="border rounded-lg p-3 flex flex-col justify-between bg-blue-50/40 border-gray-200 hover:shadow-md transition duration-200">
-                            <div>
-                                <h3 class="font-semibold text-gray-800 text-sm mb-1">${item.name}</h3>
-                                <p class="text-xs text-gray-500">Mang đi: <span class="font-bold text-blue-600">${formatMoney(item.mangDi)}</span></p>
-                                <p class="text-xs text-gray-500">Tại quán: <span class="font-bold text-blue-600">${formatMoney(item.taiQuan)}</span></p>
-                            </div>
-                            <div class="mt-3 flex space-x-2">
-                                <button onclick="addToCart('single', ${originalIndex}, 'mang_di')" class="flex-1 bg-blue-600 text-white text-xs py-1.5 px-2 rounded hover:bg-blue-700 transition font-medium">
-                                    + Mang đi
-                                </button>
-                                <button onclick="addToCart('single', ${originalIndex}, 'an_tai_quan')" class="flex-1 bg-green-600 text-white text-xs py-1.5 px-2 rounded hover:bg-green-700 transition font-medium">
-                                    + Tại quán
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-        }
-
-        function filterMenu() {
-            const keyword = document.getElementById('search-input').value.toLowerCase().trim();
-            const matchedCombos = combos.filter(item => item.name.toLowerCase().includes(keyword));
-            const matchedSingles = singles.filter(item => item.name.toLowerCase().includes(keyword));
-            renderMenu(matchedCombos, matchedSingles);
-        }
-
-        function addToCart(category, index, orderType) {
-            const source = category === 'combo' ? combos[index] : singles[index];
-            const price = orderType === 'mang_di' ? source.mangDi : source.taiQuan;
-            
-            const existingItem = cart.find(i => i.category === category && i.index === index && i.orderType === orderType);
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                cart.push({
-                    category: category,
-                    index: index,
-                    name: source.name,
-                    price: price,
-                    orderType: orderType,
-                    quantity: 1
-                });
-            }
-
-            const cardEl = document.getElementById(`card-${category}-${index}`);
-            if (cardEl) {
-                cardEl.classList.remove('animate-select-flash');
-                void cardEl.offsetWidth;
-                cardEl.classList.add('animate-select-flash');
-            }
-
-            renderCart();
-        }
-
-        function updateQuantity(cartIndex, delta) {
-            cart[cartIndex].quantity += delta;
-            if (cart[cartIndex].quantity <= 0) {
-                cart.splice(cartIndex, 1);
-            }
-            renderCart();
-        }
-
-        function clearCart() {
-            cart = [];
-            renderCart();
-        }
-
-        function renderCart() {
-            const container = document.getElementById('cart-items');
-            if (cart.length === 0) {
-                container.innerHTML = `<p class="text-gray-400 text-center py-8">Chưa có món nào được chọn</p>`;
-                document.getElementById('total-amount').innerText = '0 đ';
+        // Lắng nghe dữ liệu realtime từ Firebase
+        chatRef.limitToLast(50).on('value', (snapshot) => {
+            chatMessages.innerHTML = '';
+            if (!snapshot.exists()) {
+                chatMessages.innerHTML = '<p class="text-slate-500 text-center text-sm italic">Chưa có góp ý nào. Hãy là người đầu tiên!</p>';
                 return;
             }
 
-            let total = 0;
-            container.innerHTML = cart.map((item, idx) => {
-                const itemTotal = item.price * item.quantity;
-                total += itemTotal;
-                const typeLabel = item.orderType === 'mang_di' ? 'Mang đi' : 'Tại quán';
-                const badgeColor = item.orderType === 'mang_di' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700';
-
-                return `
-                    <div class="flex justify-between items-center bg-gray-50 p-2.5 rounded-lg border text-sm">
-                        <div class="flex-1 pr-2">
-                            <div class="flex items-center space-x-1.5 mb-0.5">
-                                <p class="font-medium text-gray-800">${item.name}</p>
-                                <span class="text-[10px] px-1.5 py-0.5 rounded font-bold ${badgeColor}">${typeLabel}</span>
-                            </div>
-                            <p class="text-xs text-gray-500">${formatMoney(item.price)} x ${item.quantity}</p>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <button onclick="updateQuantity(${idx}, -1)" class="w-6 h-6 bg-gray-200 rounded text-gray-700 font-bold hover:bg-gray-300">-</button>
-                            <span class="text-xs font-semibold w-4 text-center">${item.quantity}</span>
-                            <button onclick="updateQuantity(${idx}, 1)" class="w-6 h-6 bg-gray-200 rounded text-gray-700 font-bold hover:bg-gray-300">+</button>
-                        </div>
+            snapshot.forEach((childSnapshot) => {
+                const data = childSnapshot.val();
+                const badgeColor = data.type === 'Báo lỗi' ? 'bg-red-500/20 text-red-400' : (data.type === 'Góp ý' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400');
+                
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'bg-slate-900/80 border border-slate-800 p-3 rounded-xl text-sm';
+                msgDiv.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-red-400">${escapeHtml(data.name)}</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded ${badgeColor}">${data.type}</span>
                     </div>
+                    <p class="text-slate-300 break-words">${escapeHtml(data.text)}</p>
                 `;
-            }).join('');
+                chatMessages.appendChild(msgDiv);
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
 
-            document.getElementById('total-amount').innerText = formatMoney(total);
+        // Hàm chống XSS cơ bản
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
         }
-
-        function openCheckoutModal() {
-            if (cart.length === 0) {
-                alert('Vui lòng chọn món trước khi thanh toán!');
-                return;
-            }
-            let total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-            let transferContent = cart.map(i => `${i.name} (${i.orderType === 'mang_di' ? 'Mang đi' : 'Tại quán'} x${i.quantity})`).join(', ');
-            if (transferContent.length > 50) {
-                transferContent = transferContent.substring(0, 47) + '...';
-            }
-
-            document.getElementById('modal-total').innerText = formatMoney(total);
-            document.getElementById('modal-content').innerText = transferContent;
-
-            const encodedMemo = encodeURIComponent(transferContent);
-            const qrUrl = `https://img.vietqr.io/image/TCB-3777888234-compact2.png?amount=${total}&addInfo=${encodedMemo}&accountName=HO%20KINH%20DOANH%203S%20TEA`;
-            document.getElementById('dynamic-qr-img').src = qrUrl;
-
-            document.getElementById('checkout-modal').classList.remove('hidden');
-            document.getElementById('checkout-modal').classList.add('flex');
-        }
-
-        function closeCheckoutModal() {
-            document.getElementById('checkout-modal').classList.remove('flex');
-            document.getElementById('checkout-modal').classList.add('hidden');
-        }
-
-        function completeOrder() {
-            let total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-            const orderData = {
-                items: cart,
-                totalAmount: total
-            };
-
-            if (window.saveOrderToFirebase) {
-                window.saveOrderToFirebase(orderData);
-            }
-
-            cart = [];
-            renderMenu();
-            renderCart();
-            closeCheckoutModal();
-        }
-
-        renderMenu();
     </script>
 </body>
 </html>
